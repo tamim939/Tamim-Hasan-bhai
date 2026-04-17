@@ -92,6 +92,7 @@ type AppTab = 'deposit' | 'history' | 'profile' | 'chat' | 'new-order' | 'referr
 
 export default function App() {
   const [user, setUser] = useState<TelegramUser | null>(null);
+  const [isTelegramEnv, setIsTelegramEnv] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState<AppTab>('new-order');
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -179,28 +180,26 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (window.Telegram?.WebApp) {
+    if (window.Telegram?.WebApp && window.Telegram.WebApp.initDataUnsafe?.user) {
       const tg = window.Telegram.WebApp;
       tg.ready();
       tg.expand();
       
-      const tgUser = tg.initDataUnsafe?.user;
-      if (tgUser) {
-        setUser(tgUser);
-      } else {
-        // Mock user for dev preview if TG data is missing
+      const tgUser = tg.initDataUnsafe.user;
+      setUser(tgUser);
+      setIsTelegramEnv(true);
+    } else {
+      // In development, we can still use a mock user, but for production check, we flag as false
+      if (process.env.NODE_ENV === 'development') {
         setUser({
-          id: 582910412,
+          id: 7228630025,
           first_name: 'Trader Tamim',
           username: 'TRADER_TAMIM_3',
         });
+        setIsTelegramEnv(true);
+      } else {
+        setIsTelegramEnv(false);
       }
-    } else {
-        setUser({
-            id: 582910412,
-            first_name: 'Trader Tamim',
-            username: 'TRADER_TAMIM_3',
-          });
     }
   }, []);
 
@@ -211,6 +210,41 @@ export default function App() {
   const filteredServices = selectedCategory 
     ? SERVICES.filter(s => s.category === selectedCategory)
     : SERVICES;
+
+  if (isTelegramEnv === false) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6 text-center">
+        <div className="bg-white p-8 rounded-[40px] shadow-2xl max-w-sm w-full space-y-6">
+          <div className="w-20 h-20 bg-red-50 rounded-[24px] flex items-center justify-center mx-auto">
+            <AlertTriangle className="w-10 h-10 text-red-500" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-black text-gray-900 mb-2">Access Denied</h2>
+            <p className="text-sm font-bold text-gray-400 leading-relaxed text-center">
+               Missing Telegram init data. Please open from Telegram bot.
+            </p>
+          </div>
+          <button 
+           onClick={() => window.location.reload()}
+           className="w-full bg-blue-600 text-white font-black py-4 rounded-[20px] shadow-xl shadow-blue-500/20 active:scale-95 transition-all text-sm uppercase tracking-widest"
+          >
+            Retry Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isTelegramEnv === null) {
+      return (
+        <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-4">
+                <RefreshCw className="w-10 h-10 text-blue-500 animate-spin" />
+                <p className="text-blue-100 font-bold uppercase tracking-widest text-[10px]">Initializing...</p>
+            </div>
+        </div>
+      )
+  }
 
   return (
     <div className="min-h-screen bg-smm-bg text-smm-text-primary pb-28 font-sans select-none overflow-x-hidden flex flex-col">
@@ -543,14 +577,18 @@ export default function App() {
                 
                 <div className="flex flex-col items-center text-center relative z-10">
                     <div className="w-24 h-24 rounded-[32px] border-4 border-white/20 p-1 mb-6 bg-white/10 backdrop-blur-md">
-                        <img src="https://picsum.photos/seed/user/200/200" alt="Avatar" className="w-full h-full object-cover rounded-[26px]" />
+                        <img 
+                            src={user?.photo_url || "https://picsum.photos/seed/user/200/200"} 
+                            alt="Avatar" 
+                            className="w-full h-full object-cover rounded-[26px]" 
+                        />
                     </div>
                     <h2 className="text-2xl font-black tracking-tight leading-tight mb-1">
-                        〲𝗧ʀᴀᴅᴇʀ 𝗧ᴀᴍɪᴍ —͟͟͞͞𖣘 💮
+                        {user?.first_name || 'Trader Tamim'} {user?.last_name || ''}
                     </h2>
-                    <p className="text-blue-100/80 text-sm font-bold">@TRADER_TAMIM_3</p>
+                    <p className="text-blue-100/80 text-sm font-bold">@{user?.username || 'TRADER_TAMIM_3'}</p>
                     <div className="mt-4 px-4 py-1.5 bg-white/20 backdrop-blur-md border border-white/20 rounded-full text-[10px] font-black tracking-widest uppercase">
-                        User ID: 7228630025
+                        User ID: {user?.id || '7228630025'}
                     </div>
                 </div>
 
@@ -579,10 +617,10 @@ export default function App() {
                 
                 <div className="bg-white p-6 rounded-[44px] border border-smm-border/60 space-y-6 shadow-sm">
                     <div className="grid grid-cols-1 gap-6">
-                        <InfoItem label="Full Name" value="〲𝗧ʀᴀᴅᴇʀ 𝗧ᴀᴍɪᴍ —͟͟͞͞𖣘 💮" icon={User} />
-                        <InfoItem label="Username" value="@TRADER_TAMIM_3" icon={MessageCircle} />
+                        <InfoItem label="Full Name" value={`${user?.first_name || 'Trader Tamim'} ${user?.last_name || ''}`} icon={User} />
+                        <InfoItem label="Username" value={`@${user?.username || 'TRADER_TAMIM_3'}`} icon={MessageCircle} />
                         <InfoItem label="User Level" value="Normal" icon={ShieldCheck} />
-                        <InfoItem label="Telegram User ID" value="7228630025" icon={Lock} />
+                        <InfoItem label="Telegram User ID" value={user?.id?.toString() || '7228630025'} icon={Lock} />
                         <InfoItem label="Account Created" value="18 Apr 2026, 00:46" icon={Calendar} />
                         <InfoItem label="Last Updated" value="18 Apr 2026, 02:03" icon={RefreshCw} />
                     </div>
@@ -683,15 +721,20 @@ export default function App() {
                  {/* Profile Header - Match Screenshot */}
                  <div className="px-5 pt-6 pb-8 bg-gradient-to-br from-[#1E90FF] via-[#1E6BFF] to-[#1E4BFF] rounded-b-[44px] text-white shadow-xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-10 -mt-10 blur-3xl opacity-20" />
-                    <div className="flex items-center gap-4 mb-8 relative z-10">
+                     <div className="flex items-center gap-4 mb-8 relative z-10">
                         <div className="w-16 h-16 rounded-[24px] border-2 border-white/30 p-1 flex items-center justify-center overflow-hidden bg-white/20 backdrop-blur-md">
-                            <img src="https://picsum.photos/seed/user/200/200" alt="Trader Tamim" className="w-full h-full object-cover rounded-[20px]" referrerPolicy="no-referrer" />
+                            <img 
+                                src={user?.photo_url || "https://picsum.photos/seed/user/200/200"} 
+                                alt={user?.first_name || "Trader Tamim"} 
+                                className="w-full h-full object-cover rounded-[20px]" 
+                                referrerPolicy="no-referrer" 
+                            />
                         </div>
                         <div>
                             <h2 className="text-2xl font-black tracking-tight leading-tight flex items-center gap-1.5">
-                                〲𝗧ʀᴀᴅᴇʀ 𝗧ᴀᴍɪ𝗠 —͟͟͞͞𖣘 💮
+                                {user?.first_name || 'Trader Tamim'} {user?.last_name || ''}
                             </h2>
-                            <p className="text-blue-100 text-sm opacity-80 mt-0.5">@TRADER_TAMIM_3</p>
+                            <p className="text-blue-100 text-sm opacity-80 mt-0.5">@{user?.username || 'TRADER_TAMIM_3'}</p>
                         </div>
                     </div>
 
