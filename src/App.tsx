@@ -40,7 +40,8 @@ import {
   Calendar,
   Lock,
   Copy,
-  X
+  X,
+  Info
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CATEGORIES, SERVICES } from './constants';
@@ -103,7 +104,7 @@ export default function App() {
   const [orderQuantity, setOrderQuantity] = useState<string>('');
   const [orderLink, setOrderLink] = useState<string>('');
   const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState<'link' | 'balance' | 'service-missing' | 'category-missing' | 'transaction-missing' | 'amount-missing' | 'gateway-missing'>('link');
+  const [modalType, setModalType] = useState<'link' | 'balance' | 'service-missing' | 'category-missing' | 'transaction-missing' | 'amount-missing' | 'gateway-missing' | 'deposit-success'>('link');
   const [openDropdown, setOpenDropdown] = useState<'category' | 'service' | 'gateway' | null>(null);
   const [depositType, setDepositType] = useState<'auto' | 'manual'>('auto');
   const [selectedGatewayId, setSelectedGatewayId] = useState<string | null>(null);
@@ -142,17 +143,25 @@ export default function App() {
         setShowModal(true);
         return;
     }
-    if (!depositAmount || parseFloat(depositAmount) <= 0) {
+    const gateway = GATEWAYS.find(g => g.id === selectedGatewayId);
+    if (!depositAmount || parseFloat(depositAmount) < (gateway?.min || 1)) {
         setModalType('amount-missing');
         setShowModal(true);
         return;
     }
-    if (!transactionId) {
+    if (!transactionId || transactionId.trim().length < 5) {
         setModalType('transaction-missing');
         setShowModal(true);
         return;
     }
-    // Success logic placeholder
+    
+    // Simulate Success
+    setModalType('deposit-success');
+    setShowModal(true);
+    // Clear fields
+    setTransactionId('');
+    setDepositAmount('1');
+    setDepositNote('');
   };
 
   const handlePlaceOrder = () => {
@@ -344,118 +353,164 @@ export default function App() {
                         <div className="mt-6 space-y-4">
                             <div className="space-y-2">
                                 <label className="block text-[11px] font-black text-gray-500 pl-1 uppercase tracking-widest">Amount</label>
-                                <input 
-                                    type="number" 
-                                    value={depositAmount} 
-                                    onChange={(e) => setDepositAmount(e.target.value)}
-                                    placeholder="Enter amount"
-                                    className="w-full bg-gray-50 border border-gray-100 rounded-[18px] py-4 px-6 text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-gray-300"
-                                />
+                                <div className="relative group">
+                                    <div className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 font-bold">৳</div>
+                                    <input 
+                                        type="number" 
+                                        value={depositAmount} 
+                                        onChange={(e) => setDepositAmount(e.target.value)}
+                                        placeholder="Enter amount"
+                                        className="w-full bg-gray-50 border border-gray-100 rounded-[22px] py-4 pl-10 pr-6 text-sm font-black focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all placeholder:text-gray-300 shadow-inner"
+                                    />
+                                </div>
                             </div>
 
-                            <button className="w-full bg-blue-600 text-white font-black py-4 rounded-[20px] shadow-lg shadow-blue-500/20 active:scale-95 transition-all flex items-center justify-center gap-2">
+                            <button className="w-full bg-blue-600 text-white font-black py-4.5 rounded-[22px] shadow-lg shadow-blue-500/20 active:scale-95 transition-all flex items-center justify-center gap-2">
+                                <Zap className="w-5 h-5 fill-current" />
                                 Create Auto Payment
                             </button>
                         </div>
                     ) : (
                         <div className="mt-6 space-y-5">
                             <div className="space-y-2">
-                                <label className="block text-[11px] font-black text-gray-500 pl-1 uppercase tracking-widest">Select Gateway</label>
-                                <button 
-                                    onClick={() => setOpenDropdown(openDropdown === 'gateway' ? null : 'gateway')}
-                                    className={`w-full bg-white border ${openDropdown === 'gateway' ? 'border-blue-500 ring-2 ring-blue-500/10' : 'border-gray-200'} rounded-[20px] py-4 px-6 text-sm font-bold shadow-sm outline-none transition-all flex items-center justify-between text-left`}
-                                >
-                                    <span className={selectedGatewayId ? 'text-gray-900' : 'text-gray-400'}>
-                                        {GATEWAYS.find(g => g.id === selectedGatewayId)?.name || 'Select Gateway'}
-                                    </span>
-                                    <ChevronRight className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${openDropdown === 'gateway' ? '-rotate-90' : 'rotate-90'}`} />
-                                </button>
-
-                                <AnimatePresence>
-                                    {openDropdown === 'gateway' && (
-                                        <motion.div 
-                                            initial={{ opacity: 0, y: -10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -10 }}
-                                            className="bg-white border border-smm-border rounded-[24px] shadow-xl p-2 space-y-1 mt-2"
+                                <label className="block text-[11px] font-black text-gray-500 pl-1 uppercase tracking-widest text-center mb-3">Select Payment Gateway</label>
+                                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+                                    {GATEWAYS.map(gateway => (
+                                        <button 
+                                            key={gateway.id}
+                                            onClick={() => setSelectedGatewayId(gateway.id)}
+                                            className={`min-w-[100px] flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all active:scale-95 ${selectedGatewayId === gateway.id ? 'bg-blue-600 border-blue-600 shadow-lg shadow-blue-500/20 text-white' : 'bg-white border-gray-100 text-gray-400'}`}
                                         >
-                                            {GATEWAYS.map(gateway => (
-                                                <button 
-                                                    key={gateway.id}
-                                                    onClick={() => {
-                                                        setSelectedGatewayId(gateway.id);
-                                                        setOpenDropdown(null);
-                                                    }}
-                                                    className={`w-full flex items-center justify-between p-3 rounded-xl transition-all ${selectedGatewayId === gateway.id ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50'}`}
-                                                >
-                                                    <div className="flex items-center gap-3">
-                                                        <HandCoins className="w-4 h-4" />
-                                                        <span className="font-bold text-xs">{gateway.name}</span>
-                                                    </div>
-                                                    <p className="text-[9px] font-black opacity-60">Min ৳{gateway.min}</p>
-                                                </button>
-                                            ))}
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
+                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${selectedGatewayId === gateway.id ? 'bg-white/20' : 'bg-gray-50'}`}>
+                                                <HandCoins className={`w-5 h-5 ${selectedGatewayId === gateway.id ? 'text-white' : 'text-gray-400'}`} />
+                                            </div>
+                                            <span className="font-black text-[10px] uppercase tracking-wider">{gateway.name}</span>
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
 
                             {selectedGatewayId && (
-                                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="p-4 bg-blue-50/50 rounded-[24px] border border-blue-100/50 space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <h4 className="text-xs font-black text-blue-700 uppercase tracking-widest">{GATEWAYS.find(g => g.id === selectedGatewayId)?.name} Details</h4>
-                                        <div className="px-2 py-0.5 bg-blue-600 text-white rounded text-[8px] font-black uppercase">Official</div>
+                                <motion.div 
+                                    initial={{ opacity: 0, y: 10 }} 
+                                    animate={{ opacity: 1, y: 0 }} 
+                                    className="p-5 bg-white rounded-[32px] border border-blue-100/60 space-y-5 shadow-sm overflow-hidden relative"
+                                >
+                                    {/* Corner Badge */}
+                                    <div className="absolute top-0 right-0 px-5 py-1.5 bg-green-500 text-white text-[8px] font-black uppercase tracking-[2px] rounded-bl-2xl flex items-center gap-1.5">
+                                        <ShieldCheck className="w-2.5 h-2.5" />
+                                        Secure
+                                    </div>
+
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-14 h-14 bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg">
+                                            <span className="text-white font-black text-xl italic tracking-tighter">bK</span>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-lg font-black text-gray-900 tracking-tight leading-none mb-1">
+                                                {GATEWAYS.find(g => g.id === selectedGatewayId)?.name} Payment Details
+                                            </h4>
+                                            <p className="text-[10px] font-bold text-gray-400 flex items-center gap-1.5">
+                                                Select this gateway and complete your payment securely
+                                            </p>
+                                        </div>
                                     </div>
                                     
-                                    <div className="bg-white p-3.5 rounded-[18px] border border-blue-100 shadow-sm">
-                                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Payment Number</p>
-                                        <div className="flex items-center justify-between">
-                                            <p className="text-sm font-black text-gray-900">{GATEWAYS.find(g => g.id === selectedGatewayId)?.number}</p>
-                                            <button className="text-blue-600 active:scale-90 transition-transform"><Copy className="w-4 h-4" /></button>
+                                    <div className="grid grid-cols-1 gap-4">
+                                        <div className="bg-gray-50 p-4 rounded-[22px] border border-gray-100 group">
+                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 flex items-center gap-2">
+                                                Payment Number / Pay ID
+                                                <Copy className="w-2.5 h-2.5 group-hover:text-blue-500 transition-colors" />
+                                            </p>
+                                            <div className="flex items-center justify-between">
+                                                <p className="text-base font-black text-gray-900 font-mono tracking-wider">
+                                                    {GATEWAYS.find(g => g.id === selectedGatewayId)?.number}
+                                                </p>
+                                                <button 
+                                                    onClick={() => {
+                                                        const num = GATEWAYS.find(g => g.id === selectedGatewayId)?.number;
+                                                        if (num) navigator.clipboard.writeText(num);
+                                                    }}
+                                                    className="bg-blue-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest active:scale-90 transition-all shadow-md shadow-blue-500/10"
+                                                >
+                                                    Copy
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div className="bg-gray-50 p-4 rounded-[22px] border border-gray-100 text-center">
+                                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Payment Type</p>
+                                                <p className="text-xs font-black text-gray-900">{GATEWAYS.find(g => g.id === selectedGatewayId)?.type}</p>
+                                            </div>
+                                            <div className="bg-gray-50 p-4 rounded-[22px] border border-gray-100 text-center">
+                                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Minimum Deposit</p>
+                                                <p className="text-xs font-black text-gray-900">৳{GATEWAYS.find(g => g.id === selectedGatewayId)?.min.toFixed(2)}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-blue-50/50 p-4 rounded-[22px] border border-blue-100">
+                                            <p className="text-[10px] font-black text-blue-700 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                                <Info className="w-3 h-3" />
+                                                Instructions
+                                            </p>
+                                            <p className="text-[11px] font-bold text-blue-900 leading-relaxed text-center">
+                                                {GATEWAYS.find(g => g.id === selectedGatewayId)?.instructions}
+                                            </p>
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div className="bg-white p-3 rounded-[16px] border border-blue-50 shadow-sm">
-                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Min</p>
-                                            <p className="text-xs font-black text-gray-900">৳{GATEWAYS.find(g => g.id === selectedGatewayId)?.min}</p>
+                                    <div className="space-y-4 pt-2">
+                                        <div className="space-y-2">
+                                            <label className="block text-[11px] font-black text-gray-500 pl-1 uppercase tracking-widest">Amount</label>
+                                            <input 
+                                                type="number" 
+                                                placeholder="Enter amount"
+                                                value={depositAmount}
+                                                onChange={(e) => setDepositAmount(e.target.value)}
+                                                className="w-full bg-gray-50 border border-gray-100 rounded-[20px] py-4 px-6 text-sm font-black focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all shadow-inner"
+                                            />
                                         </div>
-                                        <div className="bg-white p-3 rounded-[16px] border border-blue-50 shadow-sm">
-                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Type</p>
-                                            <p className="text-xs font-black text-gray-900">{GATEWAYS.find(g => g.id === selectedGatewayId)?.type}</p>
+                                        <div className="space-y-2">
+                                            <label className="block text-[11px] font-black text-gray-500 pl-1 uppercase tracking-widest leading-none">Transaction ID</label>
+                                            <input 
+                                                type="text" 
+                                                placeholder="Enter transaction id"
+                                                value={transactionId}
+                                                onChange={(e) => setTransactionId(e.target.value)}
+                                                className="w-full bg-gray-50 border border-gray-100 rounded-[20px] py-4 px-6 font-mono text-sm font-black focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all shadow-inner"
+                                            />
                                         </div>
+                                        <div className="space-y-2">
+                                            <label className="block text-[11px] font-black text-gray-500 pl-1 uppercase tracking-widest">Screenshot (optional)</label>
+                                            <div className="relative group cursor-pointer">
+                                                <input type="file" className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                                                <div className="w-full bg-gray-50 border-2 border-dashed border-gray-200 rounded-[20px] py-6 flex flex-col items-center justify-center gap-2 group-hover:bg-blue-50/30 group-hover:border-blue-200 transition-all">
+                                                    <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                                                        <PlusCircle className="w-5 h-5 text-gray-400 group-hover:text-blue-500" />
+                                                    </div>
+                                                    <p className="text-[10px] font-black text-gray-400">No file chosen</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="block text-[11px] font-black text-gray-500 pl-1 uppercase tracking-widest">Description / Note</label>
+                                            <textarea 
+                                                placeholder="Optional note"
+                                                value={depositNote}
+                                                onChange={(e) => setDepositNote(e.target.value)}
+                                                className="w-full bg-gray-50 border border-gray-100 rounded-[24px] py-4 px-6 text-sm font-bold focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all min-h-[100px] shadow-inner resize-none"
+                                            />
+                                        </div>
+                                        <button 
+                                            onClick={handleManualDeposit}
+                                            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-black py-5 rounded-[24px] shadow-lg shadow-blue-500/25 active:scale-95 transition-all text-xs uppercase tracking-widest"
+                                        >
+                                            Submit Manual Deposit
+                                        </button>
                                     </div>
                                 </motion.div>
                             )}
-
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <label className="block text-[11px] font-black text-gray-500 pl-1 uppercase tracking-widest">Amount</label>
-                                    <input 
-                                        type="number" 
-                                        placeholder="Enter amount"
-                                        value={depositAmount}
-                                        onChange={(e) => setDepositAmount(e.target.value)}
-                                        className="w-full bg-gray-50 border border-gray-100 rounded-[18px] py-4 px-6 text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="block text-[11px] font-black text-gray-500 pl-1 uppercase tracking-widest">Transaction ID</label>
-                                    <input 
-                                        type="text" 
-                                        placeholder="TxnID or PayID"
-                                        value={transactionId}
-                                        onChange={(e) => setTransactionId(e.target.value)}
-                                        className="w-full bg-gray-50 border border-gray-100 rounded-[18px] py-4 px-6 font-mono text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none"
-                                    />
-                                </div>
-                                <button 
-                                    onClick={handleManualDeposit}
-                                    className="w-full bg-blue-600 text-white font-black py-4 rounded-[20px] shadow-lg shadow-blue-500/20 active:scale-95 transition-all text-sm"
-                                >
-                                    Submit Deposit Request
-                                </button>
-                            </div>
                         </div>
                     )}
                 </section>
@@ -1168,48 +1223,61 @@ export default function App() {
                         </button>
                         
                         <div className="flex flex-col items-center text-center">
-                            <div className="w-16 h-16 bg-red-50 rounded-[20px] flex items-center justify-center mb-4">
-                                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                                    <AlertTriangle className="w-6 h-6 text-red-500" />
-                                </div>
-                            </div>
-
-                            {modalType === 'category-missing' ? (
+                            {modalType === 'deposit-success' ? (
                                 <>
-                                    <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Category Missing</h3>
-                                    <p className="text-xs font-bold text-gray-400 leading-relaxed mb-6">আগে একটি category select করুন।</p>
-                                </>
-                            ) : modalType === 'service-missing' ? (
-                                <>
-                                    <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Service Missing</h3>
-                                    <p className="text-xs font-bold text-gray-400 leading-relaxed mb-6">আগে একটি service select করুন।</p>
-                                </>
-                            ) : modalType === 'balance' ? (
-                                <>
-                                    <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Insufficient Balance</h3>
-                                    <p className="text-xs font-bold text-gray-400 leading-relaxed max-w-[220px] mb-6">
-                                        আপনার balance ৳0.0000। এই order-এর জন্য ৳{selectedService && orderQuantity ? (selectedService.pricePer1000 * parseInt(orderQuantity) / 1000).toFixed(4) : '0.0000'} লাগবে।
-                                    </p>
-                                </>
-                            ) : modalType === 'transaction-missing' ? (
-                                <>
-                                    <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Transaction ID Required</h3>
-                                    <p className="text-xs font-bold text-gray-400 leading-relaxed mb-6">Please enter transaction id.</p>
-                                </>
-                            ) : modalType === 'amount-missing' ? (
-                                <>
-                                    <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Amount Required</h3>
-                                    <p className="text-xs font-bold text-gray-400 leading-relaxed mb-6">Please enter a valid amount.</p>
-                                </>
-                            ) : modalType === 'gateway-missing' ? (
-                                <>
-                                    <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Gateway Required</h3>
-                                    <p className="text-xs font-bold text-gray-400 leading-relaxed mb-6">আগে একটি Payment Gateway select করুন।</p>
+                                    <div className="w-16 h-16 bg-blue-50 rounded-[20px] flex items-center justify-center mb-4">
+                                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                            <ShieldCheck className="w-6 h-6 text-blue-600" />
+                                        </div>
+                                    </div>
+                                    <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Deposit Submitted</h3>
+                                    <p className="text-xs font-bold text-gray-400 leading-relaxed max-w-[200px] mb-6">আপনার রিকোয়েস্টটি সফলভাবে জমা হয়েছে। ১-২ ঘণ্টার মধ্যে ব্যালেন্স এড হবে।</p>
                                 </>
                             ) : (
                                 <>
-                                    <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Link Required</h3>
-                                    <p className="text-xs font-bold text-gray-400 leading-relaxed mb-6">Order করার জন্য valid link দিতে হবে।</p>
+                                    <div className="w-16 h-16 bg-red-50 rounded-[20px] flex items-center justify-center mb-4">
+                                        <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                                            <AlertTriangle className="w-6 h-6 text-red-500" />
+                                        </div>
+                                    </div>
+                                    {modalType === 'category-missing' ? (
+                                        <>
+                                            <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Category Missing</h3>
+                                            <p className="text-xs font-bold text-gray-400 leading-relaxed mb-6">আগে একটি category select করুন।</p>
+                                        </>
+                                    ) : modalType === 'service-missing' ? (
+                                        <>
+                                            <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Service Missing</h3>
+                                            <p className="text-xs font-bold text-gray-400 leading-relaxed mb-6">আগে একটি service select করুন।</p>
+                                        </>
+                                    ) : modalType === 'balance' ? (
+                                        <>
+                                            <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Insufficient Balance</h3>
+                                            <p className="text-xs font-bold text-gray-400 leading-relaxed max-w-[220px] mb-6">
+                                                আপনার balance ৳0.0000। এই order-এর জন্য ৳{selectedService && orderQuantity ? (selectedService.pricePer1000 * parseInt(orderQuantity) / 1000).toFixed(4) : '0.0000'} লাগবে।
+                                            </p>
+                                        </>
+                                    ) : modalType === 'transaction-missing' ? (
+                                        <>
+                                            <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Transaction ID Required</h3>
+                                            <p className="text-xs font-bold text-gray-400 leading-relaxed mb-6">একটি সঠিক Transaction ID প্রদান করুন।</p>
+                                        </>
+                                    ) : modalType === 'amount-missing' ? (
+                                        <>
+                                            <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Amount Required</h3>
+                                            <p className="text-xs font-bold text-gray-400 leading-relaxed mb-6">টাকার পরিমাণ বা Minimum Deposit চেক করুন।</p>
+                                        </>
+                                    ) : modalType === 'gateway-missing' ? (
+                                        <>
+                                            <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Gateway Required</h3>
+                                            <p className="text-xs font-bold text-gray-400 leading-relaxed mb-6">আগে একটি Payment Gateway select করুন।</p>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Link Required</h3>
+                                            <p className="text-xs font-bold text-gray-400 leading-relaxed mb-6">Order করার জন্য valid link দিতে হবে।</p>
+                                        </>
+                                    )}
                                 </>
                             )}
                             
