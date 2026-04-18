@@ -738,11 +738,12 @@ export default function App() {
                         <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
                         
                         <motion.div 
-                            animate={{ x: ['100%', '-100%'] }}
+                            initial={{ x: "100%" }}
+                            animate={{ x: "-100%" }}
                             transition={{ 
-                                duration: 25, 
+                                duration: 40, // Much slower speed
                                 repeat: Infinity, 
-                                ease: "easeInOut",
+                                ease: "linear", // Constant slow speed
                                 repeatType: "reverse"
                             }}
                             className="whitespace-nowrap flex items-center gap-12"
