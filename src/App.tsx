@@ -38,7 +38,9 @@ import {
   ShieldCheck,
   Headphones,
   Calendar,
-  Lock
+  Lock,
+  Copy,
+  X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CATEGORIES, SERVICES } from './constants';
@@ -255,229 +257,181 @@ export default function App() {
               key="deposit"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="space-y-6 pb-20"
+              className="space-y-5 pb-20"
             >
-              {/* Header Section - Match Screenshot */}
-              <div className="mx-4 mt-4 p-8 bg-gradient-to-b from-[#1E90FF] to-[#1E6BFF] rounded-[40px] text-white shadow-xl relative overflow-hidden">
-                <div className="relative z-10 flex justify-between items-start mb-10">
+              {/* Header Section */}
+              <div className="mx-3 mt-3 p-5 bg-gradient-to-b from-[#1E90FF] to-[#1E6BFF] rounded-[32px] text-white shadow-lg relative overflow-hidden">
+                <div className="relative z-10 flex justify-between items-start mb-6">
                     <div>
-                        <h2 className="text-3xl font-black tracking-tight">Deposit Balance</h2>
-                        <p className="text-blue-100 text-sm opacity-90 mt-1">Auto and manual payment request system</p>
+                        <h2 className="text-xl font-black tracking-tight">Deposit Balance</h2>
+                        <p className="text-blue-100 text-[10px] opacity-90 mt-0.5 uppercase tracking-widest font-black">Payments</p>
                     </div>
-                    <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center border border-white/30">
-                        <Wallet className="w-8 h-8 text-white" />
+                    <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/30">
+                        <Wallet className="w-6 h-6 text-white" />
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white/10 backdrop-blur-md rounded-[32px] p-5 border border-white/10 flex flex-col items-center justify-center text-center">
-                        <p className="text-[11px] font-black uppercase tracking-widest text-blue-100 opacity-60 mb-1">Total</p>
-                        <p className="text-2xl font-black">0</p>
+                <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-white/10 backdrop-blur-md rounded-[20px] p-3.5 border border-white/10 flex flex-col items-center justify-center text-center">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-100 opacity-60 mb-0.5">Total</p>
+                        <p className="text-xl font-black">0</p>
                     </div>
-                    <div className="bg-white/10 backdrop-blur-md rounded-[32px] p-5 border border-white/10 flex flex-col items-center justify-center text-center">
-                        <p className="text-[11px] font-black uppercase tracking-widest text-blue-100 opacity-60 mb-1">Pending</p>
-                        <p className="text-2xl font-black">0</p>
+                    <div className="bg-white/10 backdrop-blur-md rounded-[20px] p-3.5 border border-white/10 flex flex-col items-center justify-center text-center">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-100 opacity-60 mb-0.5">Pending</p>
+                        <p className="text-xl font-black">0</p>
                     </div>
-                    <div className="col-span-2 bg-white/10 backdrop-blur-md rounded-[32px] p-5 border border-white/10 flex flex-col items-center justify-center text-center">
-                        <p className="text-[11px] font-black uppercase tracking-widest text-blue-100 opacity-60 mb-1">Completed</p>
-                        <p className="text-2xl font-black">0</p>
+                    <div className="col-span-2 bg-white/10 backdrop-blur-md rounded-[20px] p-3 border border-white/10 flex flex-col items-center justify-center text-center">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-100 opacity-60 mb-0.5">Completed</p>
+                        <p className="text-xl font-black">0</p>
                     </div>
                 </div>
               </div>
 
-              <div className="px-5 space-y-6">
+              <div className="px-4 space-y-5">
                 {/* Choose Deposit Type Section */}
-                <section className="bg-white/50 p-6 rounded-[40px] border border-smm-border/50">
-                    <h3 className="text-xl font-black text-[#1a1a1a] mb-5">Choose Deposit Type</h3>
-                    <div className="grid grid-cols-2 gap-4">
+                <section className="bg-white p-4 rounded-[28px] border border-smm-border/60 shadow-sm">
+                    <h3 className="text-lg font-black text-gray-900 mb-4 pl-1">Choose Deposit Type</h3>
+                    <div className="grid grid-cols-2 gap-3">
                         <button 
                             onClick={() => setDepositType('auto')}
-                            className={`${depositType === 'auto' ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25' : 'bg-gray-50 text-gray-400'} p-6 rounded-[32px] flex flex-col items-center gap-2 active:scale-95 transition-all w-full`}
+                            className={`${depositType === 'auto' ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25' : 'bg-gray-50 text-gray-400'} p-4 rounded-[22px] flex flex-col items-center gap-2 active:scale-95 transition-all w-full`}
                         >
-                            <Zap className="w-9 h-9 stroke-[2.5px]" />
-                            <span className="font-black text-sm uppercase">Auto Payment</span>
+                            <Zap className="w-7 h-7 stroke-[2.5px]" />
+                            <span className="font-black text-[10px] uppercase tracking-wider">Auto Payment</span>
                         </button>
                         <button 
                             onClick={() => setDepositType('manual')}
-                            className={`${depositType === 'manual' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25' : 'bg-white text-gray-900 border border-smm-border'} p-6 rounded-[32px] flex flex-col items-center gap-2 active:scale-95 transition-all w-full`}
+                            className={`${depositType === 'manual' ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white shadow-lg shadow-orange-500/25' : 'bg-gray-50 text-gray-400'} p-4 rounded-[22px] flex flex-col items-center gap-2 active:scale-95 transition-all w-full`}
                         >
-                            <div className="relative">
-                                <User className="w-9 h-9 stroke-[2.5px]" />
-                                <div className="absolute -bottom-1 -right-1 bg-gray-900 rounded-full p-0.5 border-2 border-white">
-                                    <div className="w-2 h-2 bg-white rounded-full opacity-50" />
-                                </div>
-                            </div>
-                            <span className="font-black text-sm uppercase">Manual Payment</span>
+                            <HandCoins className="w-7 h-7 stroke-[2.5px]" />
+                            <span className="font-black text-[10px] uppercase tracking-wider">Manual Payment</span>
                         </button>
                     </div>
 
                     {depositType === 'auto' ? (
-                        <div className="mt-8 space-y-4">
+                        <div className="mt-6 space-y-4">
                             <div className="space-y-2">
-                                <label className="block text-sm font-black text-gray-900 pl-1">Amount</label>
+                                <label className="block text-[11px] font-black text-gray-500 pl-1 uppercase tracking-widest">Amount</label>
                                 <input 
                                     type="number" 
                                     value={depositAmount} 
                                     onChange={(e) => setDepositAmount(e.target.value)}
-                                    className="w-full bg-gray-50 border border-gray-100 rounded-[24px] py-5 px-8 text-xl font-bold focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-inner placeholder:text-gray-300"
+                                    placeholder="Enter amount"
+                                    className="w-full bg-gray-50 border border-gray-100 rounded-[18px] py-4 px-6 text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-gray-300"
                                 />
                             </div>
 
-                            <button className="w-full mt-2 bg-blue-600 text-white font-black py-5 rounded-[24px] shadow-xl shadow-blue-500/30 active:scale-95 transition-all flex items-center justify-center gap-3">
+                            <button className="w-full bg-blue-600 text-white font-black py-4 rounded-[20px] shadow-lg shadow-blue-500/20 active:scale-95 transition-all flex items-center justify-center gap-2">
                                 Create Auto Payment
                             </button>
                         </div>
                     ) : (
-                        <div className="mt-8 space-y-6">
-                            <div className="space-y-3">
-                                <label className="block text-sm font-black text-gray-900 pl-1">Select Payment Gateway</label>
-                                <div className="relative">
-                                    <button 
-                                        onClick={() => setOpenDropdown(openDropdown === 'gateway' ? null : 'gateway')}
-                                        className={`w-full bg-white border-2 ${openDropdown === 'gateway' ? 'border-blue-500 shadow-lg shadow-blue-500/10' : 'border-blue-500/20'} rounded-[24px] py-5 px-8 text-sm font-bold shadow-sm outline-none transition-all flex items-center justify-between text-left`}
-                                    >
-                                        <span className={selectedGatewayId ? 'text-gray-900' : 'text-gray-400'}>
-                                            {GATEWAYS.find(g => g.id === selectedGatewayId)?.name || 'Select Gateway'}
-                                        </span>
-                                        <ChevronRight className={`w-6 h-6 text-gray-400 transition-transform duration-300 ${openDropdown === 'gateway' ? '-rotate-90' : 'rotate-90'}`} />
-                                    </button>
+                        <div className="mt-6 space-y-5">
+                            <div className="space-y-2">
+                                <label className="block text-[11px] font-black text-gray-500 pl-1 uppercase tracking-widest">Select Gateway</label>
+                                <button 
+                                    onClick={() => setOpenDropdown(openDropdown === 'gateway' ? null : 'gateway')}
+                                    className={`w-full bg-white border ${openDropdown === 'gateway' ? 'border-blue-500 ring-2 ring-blue-500/10' : 'border-gray-200'} rounded-[20px] py-4 px-6 text-sm font-bold shadow-sm outline-none transition-all flex items-center justify-between text-left`}
+                                >
+                                    <span className={selectedGatewayId ? 'text-gray-900' : 'text-gray-400'}>
+                                        {GATEWAYS.find(g => g.id === selectedGatewayId)?.name || 'Select Gateway'}
+                                    </span>
+                                    <ChevronRight className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${openDropdown === 'gateway' ? '-rotate-90' : 'rotate-90'}`} />
+                                </button>
 
-                                    <AnimatePresence>
-                                        {openDropdown === 'gateway' && (
-                                            <motion.div 
-                                                initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                                                className="absolute left-0 right-0 top-full mt-2 bg-white border border-smm-border rounded-[32px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] z-[100] p-3 space-y-2 overflow-hidden"
-                                            >
-                                                {GATEWAYS.map(gateway => (
-                                                    <button 
-                                                        key={gateway.id}
-                                                        onClick={() => {
-                                                            setSelectedGatewayId(gateway.id);
-                                                            setOpenDropdown(null);
-                                                        }}
-                                                        className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all ${selectedGatewayId === gateway.id ? 'bg-blue-50 border-blue-100' : 'bg-white border-transparent hover:bg-gray-50'}`}
-                                                    >
-                                                        <div className="flex items-center gap-4">
-                                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${gateway.id === 'bkash' ? 'bg-pink-50' : gateway.id === 'nagad' ? 'bg-orange-50' : gateway.id === 'rocket' ? 'bg-purple-50' : 'bg-yellow-50'}`}>
-                                                                <HandCoins className={`w-7 h-7 ${gateway.id === 'bkash' ? 'text-pink-500' : gateway.id === 'nagad' ? 'text-orange-500' : gateway.id === 'rocket' ? 'text-purple-600' : 'text-yellow-600'}`} />
-                                                            </div>
-                                                            <div className="text-left">
-                                                                <p className="font-black text-gray-900">{gateway.name}</p>
-                                                                <p className="text-[10px] font-bold text-gray-400">Min ৳{gateway.min.toFixed(2)}</p>
-                                                            </div>
-                                                        </div>
-                                                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${selectedGatewayId === gateway.id ? 'border-blue-600 bg-blue-600' : 'border-gray-200'}`}>
-                                                            {selectedGatewayId === gateway.id && <div className="w-2 h-2 bg-white rounded-full" />}
-                                                        </div>
-                                                    </button>
-                                                ))}
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                </div>
+                                <AnimatePresence>
+                                    {openDropdown === 'gateway' && (
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: -10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            className="bg-white border border-smm-border rounded-[24px] shadow-xl p-2 space-y-1 mt-2"
+                                        >
+                                            {GATEWAYS.map(gateway => (
+                                                <button 
+                                                    key={gateway.id}
+                                                    onClick={() => {
+                                                        setSelectedGatewayId(gateway.id);
+                                                        setOpenDropdown(null);
+                                                    }}
+                                                    className={`w-full flex items-center justify-between p-3 rounded-xl transition-all ${selectedGatewayId === gateway.id ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50'}`}
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <HandCoins className="w-4 h-4" />
+                                                        <span className="font-bold text-xs">{gateway.name}</span>
+                                                    </div>
+                                                    <p className="text-[9px] font-black opacity-60">Min ৳{gateway.min}</p>
+                                                </button>
+                                            ))}
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
                             </div>
 
                             {selectedGatewayId && (
-                                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="p-6 bg-blue-50/30 border border-blue-100/50 rounded-[32px] space-y-5">
-                                    <div className="flex items-start gap-4">
-                                        <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm shrink-0">
-                                            <HandCoins className="w-7 h-7 text-blue-600" />
-                                        </div>
-                                        <div>
-                                            <h4 className="text-lg font-black text-gray-900 leading-tight">{GATEWAYS.find(g => g.id === selectedGatewayId)?.name} Payment Details</h4>
-                                            <p className="text-[11px] font-bold text-gray-400 mt-1">Select this gateway and complete your payment securely</p>
+                                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="p-4 bg-blue-50/50 rounded-[24px] border border-blue-100/50 space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <h4 className="text-xs font-black text-blue-700 uppercase tracking-widest">{GATEWAYS.find(g => g.id === selectedGatewayId)?.name} Details</h4>
+                                        <div className="px-2 py-0.5 bg-blue-600 text-white rounded text-[8px] font-black uppercase">Official</div>
+                                    </div>
+                                    
+                                    <div className="bg-white p-3.5 rounded-[18px] border border-blue-100 shadow-sm">
+                                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Payment Number</p>
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-sm font-black text-gray-900">{GATEWAYS.find(g => g.id === selectedGatewayId)?.number}</p>
+                                            <button className="text-blue-600 active:scale-90 transition-transform"><Copy className="w-4 h-4" /></button>
                                         </div>
                                     </div>
 
-                                    <div className="px-3 py-1.5 bg-blue-100/50 rounded-full w-fit text-[9px] font-black text-blue-700 uppercase tracking-widest">Secure</div>
-
-                                    <div className="bg-white p-5 rounded-[24px] border border-blue-50 shadow-sm relative overflow-hidden group">
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 opacity-60">Payment Number / Pay ID</p>
-                                        <p className="text-lg font-black text-gray-900">{GATEWAYS.find(g => g.id === selectedGatewayId)?.number}</p>
-                                        <button className="w-full mt-4 bg-blue-600 text-white font-black py-4 rounded-[18px] flex items-center justify-center gap-2 active:scale-95 transition-all text-sm">
-                                            <RefreshCw className="w-4 h-4" /> Copy
-                                        </button>
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        <div className="bg-white p-4 rounded-[20px] border border-blue-50 shadow-sm">
-                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5 opacity-60">Payment Type</p>
-                                            <p className="text-sm font-black text-gray-900">{GATEWAYS.find(g => g.id === selectedGatewayId)?.type}</p>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="bg-white p-3 rounded-[16px] border border-blue-50 shadow-sm">
+                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Min</p>
+                                            <p className="text-xs font-black text-gray-900">৳{GATEWAYS.find(g => g.id === selectedGatewayId)?.min}</p>
                                         </div>
-                                        <div className="bg-white p-4 rounded-[20px] border border-blue-50 shadow-sm">
-                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5 opacity-60">Minimum Deposit</p>
-                                            <p className="text-sm font-black text-gray-900">৳{GATEWAYS.find(g => g.id === selectedGatewayId)?.min.toFixed(2)}</p>
+                                        <div className="bg-white p-3 rounded-[16px] border border-blue-50 shadow-sm">
+                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Type</p>
+                                            <p className="text-xs font-black text-gray-900">{GATEWAYS.find(g => g.id === selectedGatewayId)?.type}</p>
                                         </div>
-                                    </div>
-
-                                    <div className="bg-white p-6 rounded-[24px] border border-blue-50 shadow-sm space-y-3">
-                                        <h5 className="text-[11px] font-black text-gray-900 uppercase tracking-widest">Instructions</h5>
-                                        <p className="text-xs font-bold text-gray-500 leading-relaxed">
-                                            {GATEWAYS.find(g => g.id === selectedGatewayId)?.instructions}
-                                        </p>
                                     </div>
                                 </motion.div>
                             )}
 
                             <div className="space-y-4">
                                 <div className="space-y-2">
-                                    <label className="block text-[12px] font-black text-gray-500 uppercase tracking-widest pl-1">Amount</label>
+                                    <label className="block text-[11px] font-black text-gray-500 pl-1 uppercase tracking-widest">Amount</label>
                                     <input 
                                         type="number" 
                                         placeholder="Enter amount"
                                         value={depositAmount}
                                         onChange={(e) => setDepositAmount(e.target.value)}
-                                        className="w-full bg-gray-50 border border-gray-100 rounded-[22px] py-5 px-8 text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-gray-300"
+                                        className="w-full bg-gray-50 border border-gray-100 rounded-[18px] py-4 px-6 text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none"
                                     />
                                 </div>
-
                                 <div className="space-y-2">
-                                    <label className="block text-[12px] font-black text-gray-500 uppercase tracking-widest pl-1">Transaction ID</label>
+                                    <label className="block text-[11px] font-black text-gray-500 pl-1 uppercase tracking-widest">Transaction ID</label>
                                     <input 
                                         type="text" 
-                                        placeholder="Enter transaction id"
+                                        placeholder="TxnID or PayID"
                                         value={transactionId}
                                         onChange={(e) => setTransactionId(e.target.value)}
-                                        className="w-full bg-gray-50 border border-gray-100 rounded-[22px] py-5 px-8 text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-gray-300"
+                                        className="w-full bg-gray-50 border border-gray-100 rounded-[18px] py-4 px-6 font-mono text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none"
                                     />
                                 </div>
-
-                                <div className="space-y-2">
-                                    <label className="block text-[12px] font-black text-gray-500 uppercase tracking-widest pl-1">Screenshot (optional)</label>
-                                    <div className="w-full bg-gray-50 border border-gray-100 rounded-[22px] py-5 px-8 flex items-center gap-3">
-                                        <div className="bg-white border rounded-lg px-3 py-1.5 text-[11px] font-bold text-gray-700 shadow-sm">Choose File</div>
-                                        <span className="text-xs text-gray-400 font-bold">No file chosen</span>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="block text-[12px] font-black text-gray-500 uppercase tracking-widest pl-1">Description / Note</label>
-                                    <textarea 
-                                        placeholder="Optional note"
-                                        value={depositNote}
-                                        onChange={(e) => setDepositNote(e.target.value)}
-                                        rows={4}
-                                        className="w-full bg-gray-50 border border-gray-100 rounded-[28px] py-5 px-8 text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-gray-300 resize-none"
-                                    />
-                                </div>
-
                                 <button 
                                     onClick={handleManualDeposit}
-                                    className="w-full mt-4 bg-blue-600 text-white font-black py-5 rounded-[24px] shadow-xl shadow-blue-500/30 active:scale-95 transition-all flex items-center justify-center gap-3"
+                                    className="w-full bg-blue-600 text-white font-black py-4 rounded-[20px] shadow-lg shadow-blue-500/20 active:scale-95 transition-all text-sm"
                                 >
-                                    Submit Manual Deposit
+                                    Submit Deposit Request
                                 </button>
                             </div>
                         </div>
                     )}
                 </section>
 
-                <section className="bg-white/50 p-6 rounded-[40px] border border-smm-border/50">
-                    <h3 className="text-xl font-black text-[#1a1a1a] mb-4 pl-1">Deposit History</h3>
-                    <div className="bg-gray-50/50 h-32 rounded-[32px] border border-gray-100 flex items-center justify-center text-gray-400">
-                        <p className="text-sm font-bold opacity-40">No Deposit History Found</p>
+                <section className="bg-white p-4 rounded-[28px] border border-smm-border/60 shadow-sm">
+                    <h3 className="text-lg font-black text-gray-900 mb-4 pl-1">Deposit History</h3>
+                    <div className="bg-gray-50 h-24 rounded-[20px] flex items-center justify-center border border-dashed border-gray-200">
+                        <p className="text-xs font-bold text-gray-400">No deposit history found</p>
                     </div>
                 </section>
               </div>
@@ -541,23 +495,23 @@ export default function App() {
                             className="w-full bg-white border border-smm-border rounded-2xl py-4 pl-12 pr-6 text-xs font-bold focus:ring-2 focus:ring-blue-500 outline-none"
                         />
                     </div>
-                    <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-none">
+                        <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-none mb-3">
                         {['All', 'Pending', 'Processing', 'Inprogress', 'Completed', 'Partial', 'Cancelled'].map((filter, i) => (
                             <button 
                                 key={filter} 
-                                className={`px-6 py-3 rounded-full text-xs font-black whitespace-nowrap transition-all ${i === 0 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-500 border border-smm-border'}`}
+                                className={`px-4 py-2 rounded-full text-[10px] font-black whitespace-nowrap transition-all ${i === 0 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-500 border border-smm-border'}`}
                             >
                                 {filter}
                             </button>
                         ))}
                     </div>
 
-                    <div className="mt-8 flex flex-col items-center justify-center p-10 text-center">
-                        <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                            <ShoppingBag className="w-10 h-10 text-gray-200" />
+                    <div className="mt-4 flex flex-col items-center justify-center p-8 text-center bg-white rounded-[24px] border border-gray-100 shadow-sm">
+                        <div className="w-14 h-14 bg-gray-50 rounded-full flex items-center justify-center mb-3">
+                            <ShoppingBag className="w-6 h-6 text-gray-200" />
                         </div>
-                        <h4 className="text-xl font-black text-gray-900 leading-tight">No orders found</h4>
-                        <p className="text-sm font-bold text-gray-400 mt-2">এই filter এ কোনো order পাওয়া যায়নি</p>
+                        <h4 className="text-base font-black text-gray-900 leading-tight">No orders found</h4>
+                        <p className="text-[11px] font-bold text-gray-400 mt-1">এই filter এ কোনো order পাওয়া যায়নি</p>
                     </div>
                 </section>
               </div>
@@ -572,51 +526,51 @@ export default function App() {
                 className="space-y-6 pb-24"
             >
               {/* Profile Header - Detailed */}
-              <div className="px-5 pt-10 pb-12 bg-gradient-to-br from-[#1E90FF] via-[#1E6BFF] to-[#1E4BFF] rounded-b-[50px] text-white shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl opacity-20" />
+              <div className="px-4 pt-6 pb-8 bg-gradient-to-br from-[#1E90FF] via-[#1E6BFF] to-[#1E4BFF] rounded-b-[24px] text-white shadow-lg relative overflow-hidden text-center flex flex-col items-center">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl opacity-20" />
                 
-                <div className="flex flex-col items-center text-center relative z-10">
-                    <div className="w-24 h-24 rounded-[32px] border-4 border-white/20 p-1 mb-6 bg-white/10 backdrop-blur-md">
+                <div className="relative z-10 flex flex-col items-center">
+                    <div className="w-14 h-14 rounded-[20px] border-2 border-white/20 p-0.5 mb-3 bg-white/10 backdrop-blur-md">
                         <img 
                             src={user?.photo_url || "https://picsum.photos/seed/user/200/200"} 
                             alt="Avatar" 
-                            className="w-full h-full object-cover rounded-[26px]" 
+                            className="w-full h-full object-cover rounded-[18px]" 
                         />
                     </div>
-                    <h2 className="text-2xl font-black tracking-tight leading-tight mb-1">
+                    <h2 className="text-lg font-black tracking-tight leading-tight mb-0.5">
                         {user?.first_name || 'Trader Tamim'} {user?.last_name || ''}
                     </h2>
-                    <p className="text-blue-100/80 text-sm font-bold">@{user?.username || 'TRADER_TAMIM_3'}</p>
-                    <div className="mt-4 px-4 py-1.5 bg-white/20 backdrop-blur-md border border-white/20 rounded-full text-[10px] font-black tracking-widest uppercase">
+                    <p className="text-blue-100/80 text-[10px] font-bold">@{user?.username || 'TRADER_TAMIM_3'}</p>
+                    <div className="mt-2 px-2.5 py-1 bg-white/20 backdrop-blur-md border border-white/20 rounded-full text-[8px] font-black tracking-widest uppercase">
                         User ID: {user?.id || '7228630025'}
                     </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3 mt-10">
-                    <div className="bg-white/10 backdrop-blur-md rounded-[28px] p-4 border border-white/10 flex flex-col items-center">
-                        <p className="text-[10px] font-black text-blue-100 opacity-60 uppercase mb-1">Normal</p>
-                        <ShieldCheck className="w-5 h-5" />
+                <div className="grid grid-cols-3 gap-2 mt-6 w-full">
+                    <div className="bg-white/10 backdrop-blur-md rounded-[20px] p-3 border border-white/10 flex flex-col items-center">
+                        <p className="text-[9px] font-black text-blue-100 opacity-60 uppercase mb-1">Level</p>
+                        <ShieldCheck className="w-4 h-4" />
                     </div>
-                    <div className="bg-white/10 backdrop-blur-md rounded-[28px] p-4 border border-white/10 flex flex-col items-center">
-                        <p className="text-[10px] font-black text-blue-100 opacity-60 uppercase mb-1">Balance</p>
-                        <p className="text-lg font-black">৳0.00</p>
+                    <div className="bg-white/10 backdrop-blur-md rounded-[20px] p-3 border border-white/10 flex flex-col items-center">
+                        <p className="text-[9px] font-black text-blue-100 opacity-60 uppercase mb-1">Balance</p>
+                        <p className="text-base font-black">৳0.00</p>
                     </div>
-                    <div className="bg-white/10 backdrop-blur-md rounded-[28px] p-4 border border-white/10 flex flex-col items-center">
-                        <p className="text-[10px] font-black text-blue-100 opacity-60 uppercase mb-1">Spent</p>
-                        <p className="text-lg font-black">৳0.00</p>
+                    <div className="bg-white/10 backdrop-blur-md rounded-[20px] p-3 border border-white/10 flex flex-col items-center">
+                        <p className="text-[9px] font-black text-blue-100 opacity-60 uppercase mb-1">Spent</p>
+                        <p className="text-base font-black">৳0.00</p>
                     </div>
                 </div>
               </div>
 
               {/* Account Detailed Information */}
-              <div className="mx-5 space-y-4">
-                <div className="flex items-center gap-2 px-2">
-                    <div className="w-2 h-6 bg-blue-600 rounded-full" />
-                    <h3 className="text-xl font-black text-gray-900">Account Information</h3>
+              <div className="mx-4 space-y-3">
+                <div className="flex items-center gap-2 px-1">
+                    <div className="w-1.5 h-5 bg-blue-600 rounded-full" />
+                    <h3 className="text-lg font-black text-gray-900">Account Information</h3>
                 </div>
                 
-                <div className="bg-white p-6 rounded-[44px] border border-smm-border/60 space-y-6 shadow-sm">
-                    <div className="grid grid-cols-1 gap-6">
+                <div className="bg-white p-5 rounded-[32px] border border-smm-border/60 space-y-5 shadow-sm">
+                    <div className="grid grid-cols-1 gap-5">
                         <InfoItem label="Full Name" value={`${user?.first_name || 'Trader Tamim'} ${user?.last_name || ''}`} icon={User} />
                         <InfoItem label="Username" value={`@${user?.username || 'TRADER_TAMIM_3'}`} icon={MessageCircle} />
                         <InfoItem label="User Level" value="Normal" icon={ShieldCheck} />
@@ -628,13 +582,13 @@ export default function App() {
               </div>
 
               {/* Order Statistics Grid */}
-              <div className="mx-5 space-y-4">
-                <div className="flex items-center gap-2 px-2">
-                    <div className="w-2 h-6 bg-blue-600 rounded-full" />
-                    <h3 className="text-xl font-black text-gray-900">Order Statistics</h3>
+              <div className="mx-4 space-y-3">
+                <div className="flex items-center gap-2 px-1">
+                    <div className="w-1.5 h-5 bg-blue-600 rounded-full" />
+                    <h3 className="text-lg font-black text-gray-900">Order Statistics</h3>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                     <StatListCard icon={ShoppingBag} label="Total Orders" value="0" color="bg-blue-50 text-blue-600" />
                     <StatListCard icon={ShieldCheck} label="Completed" value="0" color="bg-green-50 text-green-600" />
                     <StatListCard icon={History} label="Pending" value="0" color="bg-orange-50 text-orange-600" />
@@ -719,42 +673,42 @@ export default function App() {
           {activeTab === 'new-order' && (
             <motion.div key="new-order" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="pb-10 space-y-4">
                  {/* Profile Header - Match Screenshot */}
-                 <div className="px-5 pt-6 pb-8 bg-gradient-to-br from-[#1E90FF] via-[#1E6BFF] to-[#1E4BFF] rounded-b-[44px] text-white shadow-xl relative overflow-hidden">
+                 <div className="px-4 pt-5 pb-6 bg-gradient-to-br from-[#1E90FF] via-[#1E6BFF] to-[#1E4BFF] rounded-b-[32px] text-white shadow-lg relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-10 -mt-10 blur-3xl opacity-20" />
                      <div className="flex items-center gap-4 mb-8 relative z-10">
                         <div className="w-16 h-16 rounded-[24px] border-2 border-white/30 p-1 flex items-center justify-center overflow-hidden bg-white/20 backdrop-blur-md">
                             <img 
                                 src={user?.photo_url || "https://picsum.photos/seed/user/200/200"} 
                                 alt={user?.first_name || "Trader Tamim"} 
-                                className="w-full h-full object-cover rounded-[20px]" 
+                                className="w-full h-full object-cover rounded-[14px]" 
                                 referrerPolicy="no-referrer" 
                             />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-black tracking-tight leading-tight flex items-center gap-1.5">
+                            <h2 className="text-xl font-black tracking-tight leading-tight flex items-center gap-1.5">
                                 {user?.first_name || 'Trader Tamim'} {user?.last_name || ''}
                             </h2>
-                            <p className="text-blue-100 text-sm opacity-80 mt-0.5">@{user?.username || 'TRADER_TAMIM_3'}</p>
+                            <p className="text-blue-100 text-xs opacity-80 mt-0.5">@{user?.username || 'TRADER_TAMIM_3'}</p>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 relative z-10">
-                        <div className="bg-white/10 backdrop-blur-md rounded-[32px] p-5 border border-white/10 flex flex-col items-center">
-                            <p className="text-[10px] uppercase tracking-[2px] text-blue-100 font-bold opacity-70 mb-1">Balance</p>
-                            <p className="text-xl font-black">৳0.0000</p>
+                    <div className="grid grid-cols-2 gap-3 relative z-10">
+                        <div className="bg-white/10 backdrop-blur-md rounded-[24px] p-4 border border-white/10 flex flex-col items-center">
+                            <p className="text-[9px] uppercase tracking-[1.5px] text-blue-100 font-bold opacity-70 mb-1">Balance</p>
+                            <p className="text-lg font-black">৳0.0000</p>
                         </div>
                         <div 
                             onClick={() => setActiveTab('referral')}
-                            className="bg-white/10 backdrop-blur-md rounded-[32px] p-5 border border-white/10 flex flex-col items-center cursor-pointer active:scale-95 transition-all"
+                            className="bg-white/10 backdrop-blur-md rounded-[24px] p-4 border border-white/10 flex flex-col items-center cursor-pointer active:scale-95 transition-all"
                         >
-                            <p className="text-[10px] uppercase tracking-[2px] text-blue-100 font-bold opacity-70 mb-1">Invite</p>
-                            <User className="w-7 h-7" />
+                            <p className="text-[9px] uppercase tracking-[1.5px] text-blue-100 font-bold opacity-70 mb-1">Invite</p>
+                            <User className="w-6 h-6" />
                         </div>
                     </div>
                  </div>
 
                  {/* Announcement Card - Match Screenshot */}
-                 <div className="mx-5 p-6 bg-white rounded-[40px] shadow-sm border border-smm-border/60 relative overflow-hidden">
+                 <div className="mx-4 p-4 bg-white rounded-[28px] shadow-sm border border-smm-border/60 relative overflow-hidden">
                     <div className="flex items-start gap-4">
                         <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-[24px] flex items-center justify-center shadow-lg shadow-orange-500/20 shrink-0">
                             <Gift className="w-8 h-8 text-white" />
@@ -769,24 +723,21 @@ export default function App() {
                         </div>
                     </div>
                     
-                    <div className="mt-6 flex items-center gap-4 border-t border-gray-50 pt-5">
-                        <div className="px-4 py-2 bg-green-50 rounded-full border border-green-100 flex items-center gap-2">
-                            <span className="w-2 h-2 bg-green-500 rounded-full" />
-                            <span className="text-[10px] font-black text-green-700 uppercase tracking-widest">FESTIVE LIVE</span>
+                    <div className="mt-4 flex items-center gap-3 border-t border-gray-50 pt-4">
+                        <div className="px-3 py-1.5 bg-green-50 rounded-full border border-green-100 flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+                            <span className="text-[9px] font-black text-green-700 uppercase tracking-widest">FESTIVE LIVE</span>
                         </div>
                     </div>
 
-                    <div className="mt-5 p-4 bg-red-50/50 rounded-[28px] border border-red-50 flex items-center justify-center text-center relative overflow-hidden overflow-x-auto whitespace-nowrap scrollbar-none">
-                        <p className="text-[11px] font-bold text-red-600">শুভ নববর্ষ ১৪৩৩ 🚀 | সফলতার পথে থাকুন MJBOOST - এর সাথে 🤝</p>
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 pr-3">
-                             <div className="w-1.5 h-1.5 bg-red-200 rounded-full" />
-                        </div>
+                    <div className="mt-4 p-3 bg-red-50/50 rounded-[20px] border border-red-50 flex items-center justify-center text-center relative overflow-hidden overflow-x-auto whitespace-nowrap scrollbar-none">
+                        <p className="text-[10px] font-bold text-red-600">শুভ নববর্ষ ১৪৩৩ 🚀 | সফলতার পথে থাকুন MJBOOST - এর সাথে 🤝</p>
                     </div>
                  </div>
 
                  {/* Image Slider Section - Match Screenshot */}
-                 <div className="mx-5">
-                    <div className="h-64 bg-white rounded-[44px] overflow-hidden relative group shadow-xl border border-white/50">
+                 <div className="mx-4">
+                    <div className="h-44 bg-white rounded-[32px] overflow-hidden relative group shadow-lg border border-white/50">
                         {/* Main Festive Image Slider */}
                         <div className="absolute inset-0">
                             <AnimatePresence mode="wait">
@@ -818,8 +769,8 @@ export default function App() {
                  </div>
 
                  {/* Select Platform Section */}
-                 <div className="p-5 space-y-4">
-                    <h3 className="text-xl font-black text-gray-900 border-l-[5px] border-blue-600 pl-3">Select Platform</h3>
+                 <div className="px-4 pb-2 space-y-3">
+                    <h3 className="text-lg font-black text-gray-900 border-l-[4px] border-blue-600 pl-3">Select Platform</h3>
                     <div className="grid grid-cols-3 gap-4">
                         {platforms.map(p => {
                             const Icon = p.icon;
@@ -835,10 +786,10 @@ export default function App() {
                                         setOrderLink('');
                                         setSearchQuery('');
                                     }}
-                                    className={`p-4 rounded-[24px] flex flex-col items-center justify-center gap-2 border transition-all active:scale-95 shadow-sm ${isActive ? 'bg-blue-600 text-white border-blue-600 shadow-blue-500/20' : 'bg-white text-gray-500 border-gray-100'}`}
+                                    className={`p-3 rounded-[20px] flex flex-col items-center justify-center gap-1.5 border transition-all active:scale-95 shadow-sm ${isActive ? 'bg-blue-600 text-white border-blue-600 shadow-blue-500/20' : 'bg-white text-gray-500 border-gray-100'}`}
                                 >
-                                    <Icon className={`w-6 h-6 ${isActive ? 'stroke-white' : 'stroke-blue-600'}`} />
-                                    <span className="text-[10px] font-black uppercase tracking-tighter">{p.name}</span>
+                                    <Icon className={`w-5 h-5 ${isActive ? 'stroke-white' : 'stroke-blue-600'}`} />
+                                    <span className="text-[9px] font-black uppercase tracking-tighter">{p.name}</span>
                                 </button>
                             );
                         })}
@@ -846,8 +797,8 @@ export default function App() {
                  </div>
 
                  {/* Create New Order Form */}
-                 <div className="mx-5 p-8 bg-white rounded-[44px] border border-smm-border shadow-sm space-y-8">
-                    <h3 className="text-2xl font-black text-gray-900">Create New Order</h3>
+                 <div className="mx-4 p-5 bg-white rounded-[32px] border border-smm-border shadow-sm space-y-6">
+                    <h3 className="text-xl font-black text-gray-900 leading-tight">Create New Order</h3>
                     
                     <div className="space-y-6">
                         <div className="space-y-3">
@@ -1053,7 +1004,7 @@ export default function App() {
 
                         <button 
                             onClick={handlePlaceOrder}
-                            className="w-full bg-blue-600 text-white font-black py-5 rounded-[40px] shadow-xl shadow-blue-500/20 active:scale-95 transition-all text-sm uppercase tracking-widest"
+                            className="w-full bg-blue-600 text-white font-black py-4 rounded-[20px] shadow-lg shadow-blue-500/20 active:scale-95 transition-all text-xs uppercase tracking-widest"
                         >
                             Place Order
                         </button>
@@ -1088,61 +1039,51 @@ export default function App() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-white/10 backdrop-blur-md rounded-[32px] p-6 border border-white/10 flex flex-col items-center justify-center text-center">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-blue-100 opacity-60 mb-1">Total Referred</p>
-                            <p className="text-2xl font-black">0</p>
-                        </div>
-                        <div className="bg-white/10 backdrop-blur-md rounded-[32px] p-6 border border-white/10 flex flex-col items-center justify-center text-center">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-blue-100 opacity-60 mb-1">Total Bonus</p>
-                            <p className="text-2xl font-black">৳0.00</p>
-                        </div>
-                    </div>
-                </div>
+</div>
               </div>
 
               {/* Refer Leaderboard Banner */}
-              <div className="mx-5 p-1 bg-gradient-to-r from-gray-900 to-blue-900 rounded-[40px] shadow-lg">
-                <div className="bg-gradient-to-r from-gray-900 via-blue-800 to-blue-600 rounded-[38px] p-6 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-[24px] flex items-center justify-center border border-white/10">
-                            <Gift className="w-8 h-8 text-white" />
+              <div className="mx-4 p-1 bg-gradient-to-r from-gray-900 to-blue-900 rounded-[28px] shadow-lg">
+                <div className="bg-gradient-to-r from-gray-900 via-blue-800 to-blue-600 rounded-[26px] p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-[18px] flex items-center justify-center border border-white/10">
+                            <Gift className="w-6 h-6 text-white" />
                         </div>
                         <div>
-                            <h3 className="text-xl font-black text-white leading-tight">Refer Leaderboard</h3>
-                            <p className="text-[11px] font-bold text-blue-100 opacity-80 mt-1">Top 10 referrer list দেখতে এখানে<br/>click করুন</p>
+                            <h3 className="text-lg font-black text-white leading-tight">Refer Leaderboard</h3>
+                            <p className="text-[10px] font-bold text-blue-100 opacity-80 mt-1">Top 10 referrer list দেখতে এখানে click করুন</p>
                         </div>
                     </div>
-                    <button className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 active:scale-95 transition-all">
-                        <ChevronRight className="w-6 h-6 text-white" />
+                    <button className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/20 active:scale-95 transition-all">
+                        <ChevronRight className="w-5 h-5 text-white" />
                     </button>
                 </div>
               </div>
 
               {/* Your Referral Details */}
-              <div className="mx-5 bg-white/50 p-8 rounded-[44px] border border-smm-border/50 space-y-8">
-                <h3 className="text-xl font-black text-[#1a1a1a]">Your Referral Details</h3>
+              <div className="mx-4 bg-white/50 p-5 rounded-[28px] border border-smm-border/50 space-y-5">
+                <h3 className="text-lg font-black text-[#1a1a1a]">Your Referral Details</h3>
                 
-                <div className="bg-gray-50/50 p-6 rounded-[32px] border border-gray-100 space-y-4">
+                <div className="bg-gray-50/50 p-4 rounded-[20px] border border-gray-100 space-y-3">
                     <div>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 pl-1 opacity-60">Referral Code</p>
-                        <p className="text-xl font-black text-gray-900 pl-1">7228630025</p>
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 pl-1 opacity-60">Referral Code</p>
+                        <p className="text-lg font-black text-gray-900 pl-1">7228630025</p>
                     </div>
-                    <button className="w-full bg-blue-600 text-white font-black py-4 rounded-[20px] shadow-lg shadow-blue-500/20 active:scale-95 transition-all text-sm tracking-widest uppercase">
+                    <button className="w-full bg-blue-600 text-white font-black py-3 rounded-[14px] shadow-lg shadow-blue-500/20 active:scale-95 transition-all text-xs tracking-widest uppercase">
                         Copy Code
                     </button>
                 </div>
 
-                <div className="bg-gray-50/50 p-6 rounded-[32px] border border-gray-100 space-y-4">
+                <div className="bg-gray-50/50 p-4 rounded-[20px] border border-gray-100 space-y-3">
                     <div>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 pl-1 opacity-60">Referral Link</p>
-                        <p className="text-[13px] font-bold text-gray-900 pl-1 break-all leading-relaxed">https://t.me/mjboosttop_bot/app?startapp=7228630025</p>
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 pl-1 opacity-60">Referral Link</p>
+                        <p className="text-[12px] font-bold text-gray-900 pl-1 break-all leading-relaxed">https://t.me/mjboosttop_bot/app?startapp=7228630025</p>
                     </div>
-                    <div className="space-y-3">
-                        <button className="w-full bg-blue-600 text-white font-black py-4 rounded-[20px] shadow-lg shadow-blue-500/20 active:scale-95 transition-all text-sm tracking-widest uppercase">
+                    <div className="space-y-2">
+                        <button className="w-full bg-blue-600 text-white font-black py-3 rounded-[14px] shadow-lg shadow-blue-500/20 active:scale-95 transition-all text-xs tracking-widest uppercase">
                             Copy Link
                         </button>
-                        <button className="w-full bg-blue-50 text-blue-600 font-black py-4 rounded-[20px] active:scale-95 transition-all flex items-center justify-center gap-2 text-sm tracking-widest uppercase">
+                        <button className="w-full bg-blue-50 text-blue-600 font-black py-3 rounded-[14px] active:scale-95 transition-all flex items-center justify-center gap-2 text-xs tracking-widest uppercase">
                             Share
                             <Share2 className="w-4 h-4" />
                         </button>
@@ -1151,13 +1092,13 @@ export default function App() {
               </div>
 
               {/* Referral History Section */}
-              <div className="mx-5 space-y-4">
-                <h3 className="text-xl font-black text-[#1a1a1a] pl-2">Referral History</h3>
-                <div className="bg-white/50 p-10 rounded-[44px] border border-smm-border/50 border-dashed flex flex-col items-center justify-center text-center">
-                    <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mb-4">
-                        <History className="w-8 h-8 text-gray-300" />
+              <div className="mx-4 space-y-3">
+                <h3 className="text-lg font-black text-[#1a1a1a] pl-2">Referral History</h3>
+                <div className="bg-white/50 p-6 rounded-[28px] border border-smm-border/50 border-dashed flex flex-col items-center justify-center text-center">
+                    <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center mb-3">
+                        <History className="w-6 h-6 text-gray-300" />
                     </div>
-                    <p className="text-sm font-bold text-gray-400">No referral bonus history found</p>
+                    <p className="text-xs font-bold text-gray-400">No referral bonus history found</p>
                 </div>
               </div>
             </motion.div>
@@ -1171,55 +1112,55 @@ export default function App() {
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0.9, opacity: 0 }}
-                        className="bg-white rounded-[40px] p-8 w-full max-w-sm shadow-2xl relative overflow-hidden"
+                        className="bg-white rounded-[28px] p-6 w-full max-w-xs shadow-2xl relative overflow-hidden"
                     >
-                        <button onClick={() => setShowModal(false)} className="absolute right-6 top-6 p-2 bg-gray-50 rounded-full text-gray-400 z-10">
-                            <ChevronRight className="w-5 h-5 rotate-45" />
+                        <button onClick={() => setShowModal(false)} className="absolute right-4 top-4 p-2 bg-gray-50 rounded-full text-gray-400 z-10">
+                            <ChevronRight className="w-4 h-4 rotate-45" />
                         </button>
                         
                         <div className="flex flex-col items-center text-center">
-                            <div className="w-20 h-20 bg-red-50 rounded-[24px] flex items-center justify-center mb-6">
-                                <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center">
-                                    <AlertTriangle className="w-8 h-8 text-red-500" />
+                            <div className="w-16 h-16 bg-red-50 rounded-[20px] flex items-center justify-center mb-4">
+                                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                                    <AlertTriangle className="w-6 h-6 text-red-500" />
                                 </div>
                             </div>
 
                             {modalType === 'category-missing' ? (
                                 <>
-                                    <h3 className="text-2xl font-black text-gray-900 mb-2 leading-tight">Category Missing</h3>
-                                    <p className="text-[13px] font-bold text-gray-400 leading-normal mb-8">আগে একটি category select করুন।</p>
+                                    <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Category Missing</h3>
+                                    <p className="text-xs font-bold text-gray-400 leading-relaxed mb-6">আগে একটি category select করুন।</p>
                                 </>
                             ) : modalType === 'service-missing' ? (
                                 <>
-                                    <h3 className="text-2xl font-black text-gray-900 mb-2 leading-tight">Service Missing</h3>
-                                    <p className="text-[13px] font-bold text-gray-400 leading-normal mb-8">আগে একটি service select করুন।</p>
+                                    <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Service Missing</h3>
+                                    <p className="text-xs font-bold text-gray-400 leading-relaxed mb-6">আগে একটি service select করুন।</p>
                                 </>
                             ) : modalType === 'balance' ? (
                                 <>
-                                    <h3 className="text-2xl font-black text-gray-900 mb-2 leading-tight">Insufficient Balance</h3>
-                                    <p className="text-[13px] font-bold text-gray-400 leading-normal mb-8 max-w-[240px]">
+                                    <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Insufficient Balance</h3>
+                                    <p className="text-xs font-bold text-gray-400 leading-relaxed max-w-[220px] mb-6">
                                         আপনার balance ৳0.0000। এই order-এর জন্য ৳{selectedService && orderQuantity ? (selectedService.pricePer1000 * parseInt(orderQuantity) / 1000).toFixed(4) : '0.0000'} লাগবে।
                                     </p>
                                 </>
                             ) : modalType === 'transaction-missing' ? (
                                 <>
-                                    <h3 className="text-2xl font-black text-gray-900 mb-2 leading-tight">Transaction ID Required</h3>
-                                    <p className="text-[13px] font-bold text-gray-400 leading-normal mb-8">Please enter transaction id.</p>
+                                    <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Transaction ID Required</h3>
+                                    <p className="text-xs font-bold text-gray-400 leading-relaxed mb-6">Please enter transaction id.</p>
                                 </>
                             ) : modalType === 'amount-missing' ? (
                                 <>
-                                    <h3 className="text-2xl font-black text-gray-900 mb-2 leading-tight">Amount Required</h3>
-                                    <p className="text-[13px] font-bold text-gray-400 leading-normal mb-8">Please enter a valid amount.</p>
+                                    <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Amount Required</h3>
+                                    <p className="text-xs font-bold text-gray-400 leading-relaxed mb-6">Please enter a valid amount.</p>
                                 </>
                             ) : modalType === 'gateway-missing' ? (
                                 <>
-                                    <h3 className="text-2xl font-black text-gray-900 mb-2 leading-tight">Gateway Required</h3>
-                                    <p className="text-[13px] font-bold text-gray-400 leading-normal mb-8">আগে একটি Payment Gateway select করুন।</p>
+                                    <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Gateway Required</h3>
+                                    <p className="text-xs font-bold text-gray-400 leading-relaxed mb-6">আগে একটি Payment Gateway select করুন।</p>
                                 </>
                             ) : (
                                 <>
-                                    <h3 className="text-2xl font-black text-gray-900 mb-2 leading-tight">Link Required</h3>
-                                    <p className="text-[13px] font-bold text-gray-400 leading-normal mb-8">Order করার জন্য valid link দিতে হবে।</p>
+                                    <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Link Required</h3>
+                                    <p className="text-xs font-bold text-gray-400 leading-relaxed mb-6">Order করার জন্য valid link দিতে হবে।</p>
                                 </>
                             )}
                             
