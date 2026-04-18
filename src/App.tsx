@@ -740,23 +740,23 @@ export default function App() {
                         <motion.div 
                             animate={{ x: ['100%', '-100%'] }}
                             transition={{ 
-                                duration: 25, // Significantly slower for a super smooth motion
+                                duration: 25, 
                                 repeat: Infinity, 
                                 ease: "easeInOut",
                                 repeatType: "reverse"
                             }}
-                            className="whitespace-nowrap flex items-center gap-6"
+                            className="whitespace-nowrap flex items-center gap-12"
                         >
-                            <span className="text-[11px] font-black text-blue-700 flex items-center gap-2 uppercase tracking-widest">
-                                <Bell className="w-3 h-3 animate-bounce" />
-                                MJBOOST এনিমেশন আপডেট: লেখাটি সামনে যাবে আবার পিছনে আসবে! 🚀
+                            <span className="text-[11px] font-black text-blue-700 flex items-center gap-3 uppercase tracking-widest">
+                                <Bell className="w-4 h-4 animate-pulse text-orange-500" />
+                                শুভ নববর্ষ ১৪৩৩ 🚀 | সফলতার পথে থাকুন MJBOOST - এর সাথে 🤝
                             </span>
-                            <span className="text-[11px] font-black text-orange-600 flex items-center gap-2 uppercase tracking-widest">
-                                <Zap className="w-3 h-3" />
+                            <span className="text-[11px] font-black text-blue-700 flex items-center gap-3 uppercase tracking-widest">
+                                <Zap className="w-4 h-4 text-yellow-500" />
                                 সব সার্ভিস সুপার ফাস্ট কাজ করছে 🔥
                             </span>
-                            <span className="text-[11px] font-black text-green-600 flex items-center gap-2 uppercase tracking-widest">
-                                <ShieldCheck className="w-3 h-3" />
+                            <span className="text-[11px] font-black text-blue-700 flex items-center gap-3 uppercase tracking-widest">
+                                <ShieldCheck className="w-4 h-4 text-green-500" />
                                 ১০০% সিকিউরড পেমেন্ট গেটওয়ে ✅
                             </span>
                         </motion.div>
