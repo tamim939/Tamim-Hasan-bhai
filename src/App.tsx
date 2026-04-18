@@ -274,8 +274,15 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-smm-bg text-smm-text-primary pb-28 font-sans select-none overflow-x-hidden flex flex-col">
-      <main className="flex-1">
+    <div className="min-h-screen bg-[#fcfdfe] text-smm-text-primary pb-28 font-sans select-none overflow-x-hidden flex flex-col relative">
+      {/* Background Decorative Elements */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+          <div className="absolute top-[-10%] right-[-10%] w-[80%] h-[40%] bg-blue-100/30 rounded-full blur-[120px]" />
+          <div className="absolute bottom-[10%] left-[-10%] w-[80%] h-[40%] bg-blue-50/50 rounded-full blur-[120px]" />
+          <div className="absolute top-[30%] left-[-5%] w-[40%] h-[20%] bg-indigo-50/40 rounded-full blur-[80px]" />
+      </div>
+
+      <main className="flex-1 relative z-10">
         <AnimatePresence mode="wait">
           {activeTab === 'deposit' && (
             <motion.div 
@@ -732,34 +739,49 @@ export default function App() {
                     </div>
                  </div>
 
-                  {/* Animated Notice Bar (যাবে আর আসবে Animation) */}
-                  <div className="mx-4 mt-4 bg-gradient-to-r from-blue-50 to-white border border-blue-100/50 rounded-2xl py-3 px-1 relative overflow-hidden flex items-center">
-                        <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-                        <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+                  {/* Animated Notice Bar (Seamless Forward Marquee) */}
+                  <div className="mx-4 mt-6 bg-white/60 backdrop-blur-md border border-blue-100/80 rounded-2xl py-3.5 px-1 relative overflow-hidden flex items-center shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+                        <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-white/80 to-transparent z-20 pointer-events-none" />
+                        <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white/80 to-transparent z-20 pointer-events-none" />
                         
                         <motion.div 
-                            initial={{ x: "100%" }}
-                            animate={{ x: "-100%" }}
+                            animate={{ x: [0, "-50%"] }}
                             transition={{ 
-                                duration: 40, // Much slower speed
+                                duration: 45, // Super slow and smooth
                                 repeat: Infinity, 
-                                ease: "linear", // Constant slow speed
-                                repeatType: "reverse"
+                                ease: "linear"
                             }}
                             className="whitespace-nowrap flex items-center gap-12"
                         >
-                            <span className="text-[11px] font-black text-blue-700 flex items-center gap-3 uppercase tracking-widest">
-                                <Bell className="w-4 h-4 animate-pulse text-orange-500" />
-                                শুভ নববর্ষ ১৪৩৩ 🚀 | সফলতার পথে থাকুন MJBOOST - এর সাথে 🤝
-                            </span>
-                            <span className="text-[11px] font-black text-blue-700 flex items-center gap-3 uppercase tracking-widest">
-                                <Zap className="w-4 h-4 text-yellow-500" />
-                                সব সার্ভিস সুপার ফাস্ট কাজ করছে 🔥
-                            </span>
-                            <span className="text-[11px] font-black text-blue-700 flex items-center gap-3 uppercase tracking-widest">
-                                <ShieldCheck className="w-4 h-4 text-green-500" />
-                                ১০০% সিকিউরড পেমেন্ট গেটওয়ে ✅
-                            </span>
+                            <div className="flex items-center gap-12 shrink-0 pr-12">
+                                <span className="text-[11px] font-black text-blue-900 flex items-center gap-3 uppercase tracking-widest shrink-0">
+                                    <Bell className="w-4 h-4 animate-pulse text-orange-500" />
+                                    শুভ নববর্ষ ১৪৩৩ 🚀 | সফলতার পথে থাকুন MJBOOST - এর সাথে 🤝
+                                </span>
+                                <span className="text-[11px] font-black text-blue-900 flex items-center gap-3 uppercase tracking-widest shrink-0">
+                                    <Zap className="w-4 h-4 text-yellow-500" />
+                                    সব সার্ভিস সুপার ফাস্ট কাজ করছে 🔥
+                                </span>
+                                <span className="text-[11px] font-black text-blue-900 flex items-center gap-3 uppercase tracking-widest shrink-0">
+                                    <ShieldCheck className="w-4 h-4 text-green-500" />
+                                    ১০০% সিকিউরড পেমেন্ট গেটওয়ে ✅
+                                </span>
+                            </div>
+                            {/* Duplicate content for seamless loop */}
+                            <div className="flex items-center gap-12 shrink-0 pr-12">
+                                <span className="text-[11px] font-black text-blue-900 flex items-center gap-3 uppercase tracking-widest shrink-0">
+                                    <Bell className="w-4 h-4 animate-pulse text-orange-500" />
+                                    শুভ নববর্ষ ১৪৩৩ 🚀 | সফলতার পথে থাকুন MJBOOST - এর সাথে 🤝
+                                </span>
+                                <span className="text-[11px] font-black text-blue-900 flex items-center gap-3 uppercase tracking-widest shrink-0">
+                                    <Zap className="w-4 h-4 text-yellow-500" />
+                                    সব সার্ভিস সুপার ফাস্ট কাজ করছে 🔥
+                                </span>
+                                <span className="text-[11px] font-black text-blue-900 flex items-center gap-3 uppercase tracking-widest shrink-0">
+                                    <ShieldCheck className="w-4 h-4 text-green-500" />
+                                    ১০০% সিকিউরড পেমেন্ট গেটওয়ে ✅
+                                </span>
+                            </div>
                         </motion.div>
                   </div>
 
