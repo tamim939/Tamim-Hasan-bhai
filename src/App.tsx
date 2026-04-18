@@ -182,8 +182,13 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (window.Telegram?.WebApp && window.Telegram.WebApp.initDataUnsafe?.user) {
-      const tg = window.Telegram.WebApp;
+    const tg = window.Telegram?.WebApp;
+    // Check if we are in AI Studio Preview environment to allow development
+    const isDevPreview = window.location.hostname.includes('ais-dev') || 
+                        window.location.hostname.includes('ais-pre') ||
+                        window.location.hostname === 'localhost';
+
+    if (tg && (tg as any).initDataUnsafe?.user && (tg as any).platform !== 'unknown') {
       tg.ready();
       tg.expand();
       
@@ -191,8 +196,8 @@ export default function App() {
       setUser(tgUser);
       setIsTelegramEnv(true);
     } else {
-      // In development, we can still use a mock user, but for production check, we flag as false
-      if (process.env.NODE_ENV === 'development') {
+      // Logic for developers in AI Studio
+      if (isDevPreview) {
         setUser({
           id: 7228630025,
           first_name: 'Trader Tamim',
@@ -215,24 +220,44 @@ export default function App() {
 
   if (isTelegramEnv === false) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6 text-center">
-        <div className="bg-white p-8 rounded-[40px] shadow-2xl max-w-sm w-full space-y-6">
-          <div className="w-20 h-20 bg-red-50 rounded-[24px] flex items-center justify-center mx-auto">
-            <AlertTriangle className="w-10 h-10 text-red-500" />
-          </div>
-          <div>
-            <h2 className="text-2xl font-black text-gray-900 mb-2">Access Denied</h2>
-            <p className="text-sm font-bold text-gray-400 leading-relaxed text-center">
-               Missing Telegram init data. Please open from Telegram bot.
-            </p>
-          </div>
-          <button 
-           onClick={() => window.location.reload()}
-           className="w-full bg-blue-600 text-white font-black py-4 rounded-[20px] shadow-xl shadow-blue-500/20 active:scale-95 transition-all text-sm uppercase tracking-widest"
-          >
-            Retry Login
-          </button>
+      <div className="fixed inset-0 bg-[#0A0A0A] flex items-center justify-center p-8 text-white overflow-hidden">
+        {/* Background Effects */}
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
+            <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-blue-600 rounded-full blur-[140px]" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-blue-400 rounded-full blur-[140px]" />
         </div>
+
+        <motion.div 
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="relative z-10 w-full max-w-sm bg-white/5 backdrop-blur-3xl border border-white/10 rounded-[48px] p-10 text-center shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)]"
+        >
+            <div className="w-28 h-28 bg-gradient-to-br from-blue-500 to-blue-700 rounded-[35px] mx-auto mb-10 flex items-center justify-center shadow-2xl shadow-blue-500/30 ring-8 ring-white/5">
+                <Send className="w-14 h-14 text-white rotate-[-20deg] mr-1.5 mb-1.5 drop-shadow-lg" />
+            </div>
+
+            <h1 className="text-3xl font-black mb-4 tracking-tight leading-loose text-white">
+                Telegram Only Access
+            </h1>
+            
+            <p className="text-blue-100/60 text-sm font-bold leading-relaxed mb-12 max-w-[280px] mx-auto">
+                এই ওয়েবসাইটটি শুধুমাত্র টেলিগ্রাম মিনি অ্যাপ থেকে ব্যবহারযোগ্য। আমাদের অফিসিয়াল বোট এর মাধ্যমে প্রবেশ করুন।
+            </p>
+
+            <div className="space-y-4">
+                <button 
+                    onClick={() => window.location.href = 'https://t.me/your_bot_username'}
+                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-5 rounded-[24px] transition-all active:scale-95 flex items-center justify-center gap-3 shadow-[0_20px_40px_-10px_rgba(37,99,235,0.4)]"
+                >
+                    <span className="tracking-widest uppercase text-xs">Open Telegram Bot</span>
+                    <ChevronRight className="w-5 h-5" />
+                </button>
+                
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600 pt-8 opacity-40">
+                    Security Secured by TRADER TAMIM
+                </p>
+            </div>
+        </motion.div>
       </div>
     );
   }
@@ -707,36 +732,37 @@ export default function App() {
                     </div>
                  </div>
 
-                 {/* Announcement Card - Match Screenshot */}
-                 <div className="mx-4 p-4 bg-white rounded-[28px] shadow-sm border border-smm-border/60 relative overflow-hidden">
-                    <div className="flex items-start gap-4">
-                        <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-[24px] flex items-center justify-center shadow-lg shadow-orange-500/20 shrink-0">
-                            <Gift className="w-8 h-8 text-white" />
-                        </div>
-                        <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1.5">
-                                <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
-                                <span className="text-[11px] font-black text-orange-600 uppercase tracking-widest">শুভ নববর্ষ ১৪৩৩</span>
-                            </div>
-                            <h3 className="text-xl font-black text-gray-900 leading-tight">Boishakh Announcement</h3>
-                            <p className="text-xs text-gray-500 mt-1 font-bold">বাংলা নববর্ষ উপলক্ষে সর্বশেষ নোটিশ</p>
-                        </div>
-                    </div>
-                    
-                    <div className="mt-4 flex items-center gap-3 border-t border-gray-50 pt-4">
-                        <div className="px-3 py-1.5 bg-green-50 rounded-full border border-green-100 flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
-                            <span className="text-[9px] font-black text-green-700 uppercase tracking-widest">FESTIVE LIVE</span>
-                        </div>
-                    </div>
+                  {/* Animated Notice Bar (যাবে আর আসবে Animation) */}
+                  <div className="mx-4 mt-4 bg-gradient-to-r from-blue-50 to-white border border-blue-100/50 rounded-2xl py-3 px-1 relative overflow-hidden flex items-center">
+                        <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+                        <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+                        
+                        <motion.div 
+                            animate={{ x: ['100%', '-100%'] }}
+                            transition={{ 
+                                duration: 25, // Significantly slower for a super smooth motion
+                                repeat: Infinity, 
+                                ease: "easeInOut",
+                                repeatType: "reverse"
+                            }}
+                            className="whitespace-nowrap flex items-center gap-6"
+                        >
+                            <span className="text-[11px] font-black text-blue-700 flex items-center gap-2 uppercase tracking-widest">
+                                <Bell className="w-3 h-3 animate-bounce" />
+                                MJBOOST এনিমেশন আপডেট: লেখাটি সামনে যাবে আবার পিছনে আসবে! 🚀
+                            </span>
+                            <span className="text-[11px] font-black text-orange-600 flex items-center gap-2 uppercase tracking-widest">
+                                <Zap className="w-3 h-3" />
+                                সব সার্ভিস সুপার ফাস্ট কাজ করছে 🔥
+                            </span>
+                            <span className="text-[11px] font-black text-green-600 flex items-center gap-2 uppercase tracking-widest">
+                                <ShieldCheck className="w-3 h-3" />
+                                ১০০% সিকিউরড পেমেন্ট গেটওয়ে ✅
+                            </span>
+                        </motion.div>
+                  </div>
 
-                    <div className="mt-4 p-3 bg-red-50/50 rounded-[20px] border border-red-50 flex items-center justify-center text-center relative overflow-hidden overflow-x-auto whitespace-nowrap scrollbar-none">
-                        <p className="text-[10px] font-bold text-red-600">শুভ নববর্ষ ১৪৩৩ 🚀 | সফলতার পথে থাকুন MJBOOST - এর সাথে 🤝</p>
-                    </div>
-                 </div>
-
-                 {/* Image Slider Section - Match Screenshot */}
-                 <div className="mx-4">
+                  <div className="mx-4 mt-4">
                     <div className="h-44 bg-white rounded-[32px] overflow-hidden relative group shadow-lg border border-white/50">
                         {/* Main Festive Image Slider */}
                         <div className="absolute inset-0">
