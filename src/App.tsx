@@ -104,7 +104,34 @@ export default function App() {
   const [orderQuantity, setOrderQuantity] = useState<string>('');
   const [orderLink, setOrderLink] = useState<string>('');
   const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState<'link' | 'balance' | 'service-missing' | 'category-missing' | 'transaction-missing' | 'amount-missing' | 'gateway-missing' | 'deposit-success'>('link');
+  const [modalType, setModalType] = useState<'link' | 'balance' | 'service-missing' | 'category-missing' | 'transaction-missing' | 'amount-missing' | 'gateway-missing' | 'deposit-success' | 'payment-error'>('link');
+  const [balance, setBalance] = useState<number>(0);
+
+  useEffect(() => {
+    // Check for payment status in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const status = urlParams.get('status');
+    const tabParam = urlParams.get('tab');
+    
+    if (status === 'success') {
+      setModalType('deposit-success');
+      setShowModal(true);
+      if (tabParam) setActiveTab(tabParam as AppTab);
+      // Clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (status === 'fail') {
+      setModalType('payment-error');
+      setShowModal(true);
+      if (tabParam) setActiveTab(tabParam as AppTab);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    // Fetch balance
+    fetch('/api/user/balance')
+      .then(res => res.json())
+      .then(data => setBalance(data.balance || 0))
+      .catch(err => console.error("Balance fetch error:", err));
+  }, []);
   const [openDropdown, setOpenDropdown] = useState<'category' | 'service' | 'gateway' | null>(null);
   const [depositType, setDepositType] = useState<'auto' | 'manual'>('auto');
   const [selectedGatewayId, setSelectedGatewayId] = useState<string | null>(null);
@@ -136,6 +163,34 @@ export default function App() {
     { id: 'telegram', name: 'Telegram', icon: Send },
     { id: 'all', name: 'All', icon: ShoppingBag },
   ];
+
+  const handleAutoDeposit = async () => {
+    if (!depositAmount || parseFloat(depositAmount) <= 0) {
+      setModalType('amount-missing');
+      setShowModal(true);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/payment/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: depositAmount })
+      });
+      
+      const data = await response.json();
+      
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error(data.error || "Failed to get payment URL");
+      }
+    } catch (err) {
+      console.error("Auto deposit error:", err);
+      setModalType('payment-error');
+      setShowModal(true);
+    }
+  };
 
   const handleManualDeposit = () => {
     if (!selectedGatewayId) {
@@ -365,7 +420,10 @@ export default function App() {
                                 </div>
                             </div>
 
-                            <button className="w-full bg-blue-600 text-white font-black py-4.5 rounded-[22px] shadow-lg shadow-blue-500/20 active:scale-95 transition-all flex items-center justify-center gap-2">
+                            <button 
+                                onClick={handleAutoDeposit}
+                                className="w-full bg-blue-600 text-white font-black py-4.5 rounded-[22px] shadow-lg shadow-blue-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+                            >
                                 <Zap className="w-5 h-5 fill-current" />
                                 Create Auto Payment
                             </button>
@@ -640,7 +698,7 @@ export default function App() {
                     </div>
                     <div className="bg-white/10 backdrop-blur-md rounded-[20px] p-3 border border-white/10 flex flex-col items-center">
                         <p className="text-[9px] font-black text-blue-100 opacity-60 uppercase mb-1">Balance</p>
-                        <p className="text-base font-black">৳0.00</p>
+                        <p className="text-base font-black">৳{balance.toFixed(2)}</p>
                     </div>
                     <div className="bg-white/10 backdrop-blur-md rounded-[20px] p-3 border border-white/10 flex flex-col items-center">
                         <p className="text-[9px] font-black text-blue-100 opacity-60 uppercase mb-1">Spent</p>
@@ -782,7 +840,7 @@ export default function App() {
                     <div className="grid grid-cols-2 gap-3 relative z-10">
                         <div className="bg-white/10 backdrop-blur-md rounded-[24px] p-4 border border-white/10 flex flex-col items-center">
                             <p className="text-[9px] uppercase tracking-[1.5px] text-blue-100 font-bold opacity-70 mb-1">Balance</p>
-                            <p className="text-lg font-black">৳0.0000</p>
+                            <p className="text-lg font-black">৳{balance.toFixed(4)}</p>
                         </div>
                         <div 
                             onClick={() => setActiveTab('referral')}
@@ -1231,7 +1289,17 @@ export default function App() {
                                         </div>
                                     </div>
                                     <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Deposit Submitted</h3>
-                                    <p className="text-xs font-bold text-gray-400 leading-relaxed max-w-[200px] mb-6">আপনার রিকোয়েস্টটি সফলভাবে জমা হয়েছে। ১-২ ঘণ্টার মধ্যে ব্যালেন্স এড হবে।</p>
+                                    <p className="text-xs font-bold text-gray-400 leading-relaxed max-w-[200px] mb-6">আপনার রিকোয়েস্টটি সফলভাবে জমা হয়েছে। ব্যালেন্স অটোমেটিক এড হবে।</p>
+                                </>
+                            ) : modalType === 'payment-error' ? (
+                                <>
+                                    <div className="w-16 h-16 bg-red-50 rounded-[20px] flex items-center justify-center mb-4">
+                                        <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                                            <X className="w-6 h-6 text-red-500" />
+                                        </div>
+                                    </div>
+                                    <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Payment Failed</h3>
+                                    <p className="text-xs font-bold text-gray-400 leading-relaxed max-w-[200px] mb-6">পেমেন্ট সম্পন্ন হয়নি। অনুগ্রহ করে আবার চেষ্টা করুন।</p>
                                 </>
                             ) : (
                                 <>
@@ -1254,7 +1322,7 @@ export default function App() {
                                         <>
                                             <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight">Insufficient Balance</h3>
                                             <p className="text-xs font-bold text-gray-400 leading-relaxed max-w-[220px] mb-6">
-                                                আপনার balance ৳0.0000। এই order-এর জন্য ৳{selectedService && orderQuantity ? (selectedService.pricePer1000 * parseInt(orderQuantity) / 1000).toFixed(4) : '0.0000'} লাগবে।
+                                                আপনার balance ৳{balance.toFixed(4)}। এই order-এর জন্য ৳{selectedService && orderQuantity ? (selectedService.pricePer1000 * parseInt(orderQuantity) / 1000).toFixed(4) : '0.0000'} লাগবে।
                                             </p>
                                         </>
                                     ) : modalType === 'transaction-missing' ? (
