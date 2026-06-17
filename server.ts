@@ -47,9 +47,9 @@ app.post("/api/payment/create", async (req, res) => {
     const successUrl = `${req.protocol}://${req.get("host")}/api/payment/success?amount=${amount}`;
     const failUrl = `${req.protocol}://${req.get("host")}/api/payment/fail`;
 
-    // Constructing a likely URL structure for this specific gateway
-    // NOTE: This structure is an educated guess based on djsmmbd's custom pay-secure portal.
-    const paymentUrl = `${gatewayUrl}/api/pay/${brandKey}?amount=${amount}&success_url=${encodeURIComponent(successUrl)}&fail_url=${encodeURIComponent(failUrl)}`;
+    // Constructing the URL according to typical SMM portal redirections
+    // We append the brand key and amount to the URL
+    const paymentUrl = `${gatewayUrl}/pay/${brandKey}?amount=${amount}&success_url=${encodeURIComponent(successUrl)}&fail_url=${encodeURIComponent(failUrl)}`;
 
     res.json({ url: paymentUrl });
   } catch (error) {

@@ -135,7 +135,7 @@ export default function App() {
   const [openDropdown, setOpenDropdown] = useState<'category' | 'service' | 'gateway' | null>(null);
   const [depositType, setDepositType] = useState<'auto' | 'manual'>('auto');
   const [selectedGatewayId, setSelectedGatewayId] = useState<string | null>(null);
-  const [depositAmount, setDepositAmount] = useState<string>('1');
+  const [depositAmount, setDepositAmount] = useState<string>('');
   const [transactionId, setTransactionId] = useState<string>('');
   const [depositNote, setDepositNote] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
