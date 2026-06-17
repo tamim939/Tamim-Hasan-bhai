@@ -91,7 +91,7 @@ const PlatformIcons: Record<string, LucideIcon> = {
   tiktok: Video,
 };
 
-type AppTab = 'deposit' | 'history' | 'profile' | 'chat' | 'new-order' | 'referral';
+type AppTab = 'deposit' | 'history' | 'profile' | 'new-order' | 'referral';
 
 export default function App() {
   const [user, setUser] = useState<TelegramUser | null>(null);
@@ -1364,23 +1364,14 @@ export default function App() {
       </main>
 
       {/* Floating Bottom Navigation - Match Screenshot */}
-      <nav className="fixed bottom-6 left-5 right-5 h-20 bg-white/95 backdrop-blur-xl border border-white/50 rounded-full shadow-[0_20px_40px_rgba(0,0,0,0.1)] flex items-center justify-around z-50 px-2 overflow-visible">
-        <NavIconButton active={activeTab === 'new-order'} onClick={() => setActiveTab('new-order')} icon={ShoppingBag} label="New Order" />
+      <nav className="fixed bottom-6 left-5 right-5 h-20 bg-white/95 backdrop-blur-xl border border-white/50 rounded-full shadow-[0_20px_40px_rgba(0,0,0,0.1)] flex items-center justify-between z-50 px-4 overflow-visible">
+        <NavIconButton active={activeTab === 'new-order'} onClick={() => setActiveTab('new-order')} icon={ShoppingBag} label="Order" />
         <NavIconButton active={activeTab === 'history'} onClick={() => setActiveTab('history')} icon={History} label="History" />
         
-        {/* Center Button - Deposit (As per latest screenshot) */}
-        <div className="relative -top-6 translate-y-[-2px]">
-            <button 
-                onClick={() => setActiveTab('deposit')}
-                className={`w-16 h-16 rounded-[24px] flex flex-col items-center justify-center gap-1 transition-all duration-300 ${activeTab === 'deposit' ? 'bg-blue-600 text-white shadow-[0_12px_24px_rgba(37,99,235,0.4)] scale-110' : 'bg-white text-blue-500 shadow-xl border border-blue-50'}`}
-            >
-                <HandCoins className={`w-7 h-7 ${activeTab === 'deposit' ? 'stroke-[2.5px]' : 'stroke-2'}`} />
-                <span className="text-[7px] font-black uppercase tracking-tighter">Deposit</span>
-            </button>
-        </div>
+        <NavIconButton active={activeTab === 'deposit'} onClick={() => setActiveTab('deposit')} icon={HandCoins} label="Deposit" isCenter />
 
+        <NavIconButton active={activeTab === 'referral'} onClick={() => setActiveTab('referral')} icon={Gift} label="Refer" />
         <NavIconButton active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} icon={User} label="Profile" />
-        <NavIconButton active={activeTab === 'chat'} onClick={() => setActiveTab('chat')} icon={MessageCircle} label="Chat" />
       </nav>
     </div>
   );
@@ -1395,15 +1386,23 @@ function StatBox({ label, value, full }: { label: string, value: string, full?: 
     )
 }
 
-function NavIconButton({ active, onClick, icon: Icon, label }: { active: boolean, onClick: () => void, icon: LucideIcon, label: string }) {
+function NavIconButton({ active, onClick, icon: Icon, label, isCenter }: { active: boolean, onClick: () => void, icon: LucideIcon, label: string, isCenter?: boolean }) {
   return (
     <button 
       onClick={onClick}
-      className={`flex flex-col items-center gap-1.5 transition-all w-14 ${active ? 'text-blue-600 scale-105' : 'text-gray-400 hover:text-gray-600'}`}
+      className={`flex-1 flex flex-col items-center gap-1.5 transition-all relative ${active ? 'text-blue-600' : 'text-gray-400 hover:text-gray-500'}`}
     >
-      <Icon className={`w-5 h-5 ${active ? 'stroke-[2.5px]' : 'stroke-2'}`} />
-      <span className="text-[8px] font-black uppercase tracking-tight">{label}</span>
-      {active && <motion.div layoutId="nav-dot" className="w-1 h-1 bg-blue-600 rounded-full" />}
+      <div className={`flex flex-col items-center justify-center ${isCenter && active ? 'scale-110 -translate-y-1' : ''} transition-all duration-300`}>
+        <Icon className={`w-5.5 h-5.5 ${active ? 'stroke-[2.5px]' : 'stroke-[2px]'}`} />
+        <span className="text-[8px] font-black uppercase tracking-tighter mt-0.5">{label}</span>
+      </div>
+      {active && (
+        <motion.div 
+          layoutId="nav-dot" 
+          className="absolute -bottom-1 w-1 h-1 bg-blue-600 rounded-full" 
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        />
+      )}
     </button>
   );
 }
