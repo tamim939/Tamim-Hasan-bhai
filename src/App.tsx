@@ -44,8 +44,11 @@ import {
   Info
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { CATEGORIES, SERVICES } from './constants';
+import { CATEGORIES as INITIAL_CATEGORIES, SERVICES as INITIAL_SERVICES } from './constants';
 import { TelegramUser, SMMService, Category } from './types';
+import { db } from './lib/firebase';
+import { collection, query, onSnapshot, doc, getDoc } from 'firebase/firestore';
+import AdminPanel from './components/AdminPanel';
 
 const GATEWAYS = [
     { 
@@ -107,6 +110,56 @@ export default function App() {
   const [modalType, setModalType] = useState<'link' | 'balance' | 'service-missing' | 'category-missing' | 'transaction-missing' | 'amount-missing' | 'gateway-missing' | 'deposit-success' | 'payment-error'>('link');
   const [balance, setBalance] = useState<number>(0);
 
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [dbCategories, setDbCategories] = useState<Category[]>([]);
+  const [dbServices, setDbServices] = useState<any[]>([]);
+  const [dbSettings, setDbSettings] = useState<any>(null);
+
+  useEffect(() => {
+    // Load Categories from Firestore
+    const qCat = query(collection(db, 'categories'));
+    const unsubCat = onSnapshot(qCat, (snap) => {
+      const cats = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+      setDbCategories(cats.length > 0 ? cats : INITIAL_CATEGORIES);
+    });
+
+    // Load Services from Firestore
+    const qSvc = query(collection(db, 'services'));
+    const unsubSvc = onSnapshot(qSvc, (snap) => {
+      const svcs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+      setDbServices(svcs.length > 0 ? svcs : INITIAL_SERVICES);
+    });
+
+    // Load Settings
+    const unsubSettings = onSnapshot(doc(db, 'settings', 'global'), (snap) => {
+      if (snap.exists()) setDbSettings(snap.data());
+    });
+
+    return () => {
+      unsubCat();
+      unsubSvc();
+      unsubSettings();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      // Sync user with server and firestore
+      fetch('/api/user/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(user)
+      })
+      .then(res => res.json())
+      .then(data => {
+        setBalance(data.balance || 0);
+        setIsAdmin(data.isAdmin || false);
+      })
+      .catch(err => console.error("User sync error:", err));
+    }
+  }, [user]);
+
   useEffect(() => {
     // Check for payment status in URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -126,12 +179,15 @@ export default function App() {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
 
-    // Fetch balance
-    fetch('/api/user/balance')
-      .then(res => res.json())
-      .then(data => setBalance(data.balance || 0))
-      .catch(err => console.error("Balance fetch error:", err));
-  }, []);
+    if (user) {
+        // Fetch balance
+        fetch(`/api/user/balance?telegramId=${user.id}`)
+          .then(res => res.json())
+          .then(data => setBalance(data.balance || 0))
+          .catch(err => console.error("Balance fetch error:", err));
+    }
+  }, [user]);
+
   const [openDropdown, setOpenDropdown] = useState<'category' | 'service' | 'gateway' | null>(null);
   const [depositType, setDepositType] = useState<'auto' | 'manual'>('auto');
   const [selectedGatewayId, setSelectedGatewayId] = useState<string | null>(null);
@@ -153,7 +209,7 @@ export default function App() {
     return () => clearInterval(timer);
   }, []);
 
-  const selectedService = SERVICES.find(s => s.id === selectedServiceId);
+  const selectedService = dbServices.find(s => s.id === selectedServiceId);
 
   const platforms = [
     { id: 'facebook', name: 'Facebook', icon: Facebook },
@@ -175,7 +231,7 @@ export default function App() {
       const response = await fetch('/api/payment/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: depositAmount })
+        body: JSON.stringify({ amount: depositAmount, userId: user?.id })
       });
       
       const data = await response.json();
@@ -274,13 +330,13 @@ export default function App() {
     }
   }, []);
 
-  const filteredCategories = CATEGORIES.filter(c => 
+  const filteredCategories = dbCategories.filter(c => 
     c.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const filteredServices = selectedCategory 
-    ? SERVICES.filter(s => s.category === selectedCategory)
-    : SERVICES;
+    ? dbServices.filter(s => (s.category || s.categoryId) === selectedCategory)
+    : dbServices;
 
   if (isTelegramEnv === false) {
     return (
@@ -793,12 +849,6 @@ export default function App() {
                             desc="View Monthly Top Referrer leaderboard" 
                         />
                         <ActionMenuCard 
-                            icon={Gift} 
-                            title="Referral" 
-                            desc="See Your Refer link or many Details" 
-                            onClick={() => setActiveTab('referral')}
-                        />
-                        <ActionMenuCard 
                             icon={FileText} 
                             title="Faq and Policy" 
                             desc="Faqs, Order Rules and Refund Policy" 
@@ -807,13 +857,28 @@ export default function App() {
                             icon={Headphones} 
                             title="Support Chat" 
                             desc="Talk to support for any issue, order help, or payment assistance." 
-                            onClick={() => setActiveTab('chat')}
+                            onClick={() => setActiveTab('chat' as any)}
                         />
+                        
+                        {isAdmin && (
+                            <ActionMenuCard 
+                                icon={ShieldCheck} 
+                                title="Admin Control" 
+                                desc="Manage services, settings and users" 
+                                onClick={() => setShowAdminPanel(true)}
+                            />
+                        )}
                     </div>
                 </div>
               </div>
             </motion.div>
           )}
+
+          <AnimatePresence>
+            {showAdminPanel && user && (
+                <AdminPanel telegramId={user.id.toString()} onClose={() => setShowAdminPanel(false)} />
+            )}
+          </AnimatePresence>
 
           {activeTab === 'new-order' && (
             <motion.div key="new-order" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="pb-10 space-y-4">
@@ -843,11 +908,11 @@ export default function App() {
                             <p className="text-lg font-black">৳{balance.toFixed(4)}</p>
                         </div>
                         <div 
-                            onClick={() => setActiveTab('referral')}
-                            className="bg-white/10 backdrop-blur-md rounded-[24px] p-4 border border-white/10 flex flex-col items-center cursor-pointer active:scale-95 transition-all"
+                            onClick={() => setActiveTab('deposit')}
+                            className="bg-white/10 backdrop-blur-md rounded-[24px] p-4 border border-white/10 flex flex-col items-center cursor-pointer active:scale-95 transition-all text-center"
                         >
-                            <p className="text-[9px] uppercase tracking-[1.5px] text-blue-100 font-bold opacity-70 mb-1">Invite</p>
-                            <User className="w-6 h-6" />
+                            <p className="text-[9px] uppercase tracking-[1.5px] text-blue-100 font-bold opacity-70 mb-1">Recharge</p>
+                            <PlusCircle className="w-6 h-6" />
                         </div>
                     </div>
                  </div>
@@ -869,7 +934,7 @@ export default function App() {
                             <div className="flex items-center gap-12 shrink-0 pr-12">
                                 <span className="text-[11px] font-black text-blue-900 flex items-center gap-3 uppercase tracking-widest shrink-0">
                                     <Bell className="w-4 h-4 animate-pulse text-orange-500" />
-                                    শুভ নববর্ষ ১৪৩৩ 🚀 | সফলতার পথে থাকুন MJBOOST - এর সাথে 🤝
+                                    {dbSettings?.notice || 'শুভ নববর্ষ ১৪৩৩ 🚀 | সফলতার পথে থাকুন MJBOOST - এর সাথে 🤝'}
                                 </span>
                                 <span className="text-[11px] font-black text-blue-900 flex items-center gap-3 uppercase tracking-widest shrink-0">
                                     <Zap className="w-4 h-4 text-yellow-500" />
@@ -884,7 +949,7 @@ export default function App() {
                             <div className="flex items-center gap-12 shrink-0 pr-12">
                                 <span className="text-[11px] font-black text-blue-900 flex items-center gap-3 uppercase tracking-widest shrink-0">
                                     <Bell className="w-4 h-4 animate-pulse text-orange-500" />
-                                    শুভ নববর্ষ ১৪৩৩ 🚀 | সফলতার পথে থাকুন MJBOOST - এর সাথে 🤝
+                                    {dbSettings?.notice || 'শুভ নববর্ষ ১৪৩৩ 🚀 | সফলতার পথে থাকুন MJBOOST - এর সাথে 🤝'}
                                 </span>
                                 <span className="text-[11px] font-black text-blue-900 flex items-center gap-3 uppercase tracking-widest shrink-0">
                                     <Zap className="w-4 h-4 text-yellow-500" />
@@ -909,7 +974,7 @@ export default function App() {
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: -20 }}
                                     transition={{ duration: 0.5 }}
-                                    src={bannerImages[currentBannerIndex]} 
+                                    src={dbSettings?.sliderImages?.[currentBannerIndex] || bannerImages[currentBannerIndex]} 
                                     alt="Festive Banner" 
                                     className="w-full h-full object-cover"
                                     referrerPolicy="no-referrer"
@@ -987,13 +1052,13 @@ export default function App() {
                                 >
                                     <div className="absolute left-4">
                                         {(() => {
-                                            const cat = CATEGORIES.find(c => c.id === selectedCategory);
-                                            const Icon = cat ? PlatformIcons[cat.platform] : (selectedPlatform !== 'all' ? PlatformIcons[selectedPlatform] : Search);
+                                            const cat = dbCategories.find(c => c.id === selectedCategory);
+                                            const Icon = cat ? (PlatformIcons[cat.platform as any] || Send) : (selectedPlatform !== 'all' ? PlatformIcons[selectedPlatform] : Search);
                                             return <Icon className="w-5 h-5 text-blue-500" />;
                                         })()}
                                     </div>
                                     <span className={selectedCategory ? 'text-gray-900' : 'text-gray-400'}>
-                                        {CATEGORIES.find(c => c.id === selectedCategory)?.name || 'Select Category'}
+                                        {dbCategories.find(c => c.id === selectedCategory)?.name || 'Select Category'}
                                     </span>
                                     <ChevronRight className={`absolute right-5 w-5 h-5 text-gray-400 transition-transform duration-300 ${openDropdown === 'category' ? '-rotate-90' : 'rotate-90'}`} />
                                 </button>
@@ -1006,8 +1071,8 @@ export default function App() {
                                             exit={{ opacity: 0, y: -10, scale: 0.95 }}
                                             className="absolute left-0 right-0 top-full mt-2 bg-white border border-smm-border rounded-[32px] shadow-2xl z-[100] max-h-[350px] overflow-y-auto p-2 space-y-1"
                                         >
-                                            {CATEGORIES.filter(c => selectedPlatform === 'all' || c.platform === selectedPlatform).map(cat => {
-                                                const Icon = PlatformIcons[cat.platform] || Search;
+                                            {dbCategories.filter(c => selectedPlatform === 'all' || (c.platform || 'telegram') === selectedPlatform).map(cat => {
+                                                const Icon = PlatformIcons[cat.platform || 'telegram'] || Search;
                                                 const isSelected = selectedCategory === cat.id;
                                                 return (
                                                     <button 
@@ -1049,15 +1114,15 @@ export default function App() {
                                     >
                                         <div className="absolute left-4">
                                             {(() => {
-                                                const service = SERVICES.find(s => s.id === selectedServiceId);
-                                                const cat = CATEGORIES.find(c => c.id === selectedCategory);
+                                                const service = dbServices.find(s => s.id === selectedServiceId);
+                                                const cat = dbCategories.find(c => c.id === selectedCategory);
                                                 const platform = service?.platform || cat?.platform || selectedPlatform;
                                                 const Icon = PlatformIcons[platform] || Search;
                                                 return <Icon className="w-5 h-5 text-blue-500" />;
                                             })()}
                                         </div>
                                         <span className={selectedServiceId ? 'text-gray-900' : 'text-gray-400'}>
-                                            {SERVICES.find(s => s.id === selectedServiceId)?.name || 'Select Service'}
+                                            {dbServices.find(s => s.id === selectedServiceId)?.name || 'Select Service'}
                                         </span>
                                         <ChevronRight className={`absolute right-5 w-5 h-5 text-gray-400 transition-transform duration-300 ${openDropdown === 'service' ? '-rotate-90' : 'rotate-90'}`} />
                                     </button>
@@ -1070,8 +1135,8 @@ export default function App() {
                                                 exit={{ opacity: 0, y: -10, scale: 0.95 }}
                                                 className="absolute left-0 right-0 top-full mt-2 bg-white border border-smm-border rounded-[32px] shadow-2xl z-[100] max-h-[350px] overflow-y-auto p-2 space-y-1"
                                             >
-                                                {SERVICES.filter(s => s.category === selectedCategory).map(service => {
-                                                    const cat = CATEGORIES.find(c => c.id === selectedCategory);
+                                                {dbServices.filter(s => (s.category || s.categoryId) === selectedCategory).map(service => {
+                                                    const cat = dbCategories.find(c => c.id === selectedCategory);
                                                     const Icon = PlatformIcons[cat?.platform || 'telegram'] || Search;
                                                     const isSelected = selectedServiceId === service.id;
                                                     return (

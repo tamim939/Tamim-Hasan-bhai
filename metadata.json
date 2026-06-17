@@ -1,6 +1,6 @@
 {
   "name": "Telegram SMM Panel",
-  "description": "A Social Media Marketing panel designed as a Telegram Mini App featuring service lists, order tracking, and Telegram profile integration.",
+  "description": "A Social Media Marketing panel designed as a Telegram Mini App with Firebase integration, real-time balance tracking, and a powerful Admin Control Panel for managing services and settings.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

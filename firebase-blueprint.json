@@ -1,0 +1,44 @@
+{
+  "collections": {
+    "users": {
+        "balance": "number",
+        "username": "string",
+        "telegramId": "string",
+        "isAdmin": "boolean"
+    },
+    "categories": {
+        "name": "string",
+        "order": "number"
+    },
+    "services": {
+        "categoryId": "string",
+        "name": "string",
+        "pricePer1000": "number",
+        "description": "string",
+        "minOrder": "number",
+        "maxOrder": "number",
+        "icon": "string"
+    },
+    "settings": {
+        "depositNumber": "string",
+        "depositUrl": "string",
+        "autoPaymentUrl": "string",
+        "brandKey": "string",
+        "notice": "string"
+    },
+    "slider_images": {
+        "url": "string",
+        "order": "number"
+    },
+    "orders": {
+        "userId": "string",
+        "serviceId": "string",
+        "serviceName": "string",
+        "quantity": "number",
+        "totalPrice": "number",
+        "status": "string",
+        "createdAt": "timestamp",
+        "link": "string"
+    }
+  }
+}

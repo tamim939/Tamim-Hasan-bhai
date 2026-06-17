@@ -3,20 +3,103 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
 import axios from "axios";
+import { initializeApp, getApps } from "firebase-admin/app";
+import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 dotenv.config();
+
+// Initialize Firebase Admin
+if (getApps().length === 0) {
+  initializeApp({
+    projectId: "concentrated-flash-3cf5x",
+  });
+}
+const db = getFirestore();
 
 const app = express();
 const PORT = 3000;
 
 app.use(express.json());
 
-// Mock database for user balance
-let userBalance = 0.0;
-
 // API Routes
-app.get("/api/user/balance", (req, res) => {
-  res.json({ balance: userBalance });
+app.get("/api/user/balance", async (req, res) => {
+  const telegramId = req.query.telegramId as string;
+  if (!telegramId) return res.json({ balance: 0 });
+
+  try {
+    const userDoc = await db.collection('users').doc(telegramId).get();
+    if (userDoc.exists) {
+      res.json({ balance: userDoc.data()?.balance || 0 });
+    } else {
+      res.json({ balance: 0 });
+    }
+  } catch (error) {
+    console.error("Balance fetch error:", error);
+    res.status(500).json({ error: "Failed to fetch balance" });
+  }
+});
+
+app.post("/api/user/sync", async (req, res) => {
+  const { id, username, first_name } = req.body;
+  if (!id) return res.status(400).json({ error: "ID is required" });
+
+  try {
+    const userRef = db.collection('users').doc(String(id));
+    const userDoc = await userRef.get();
+
+    const isAdmin = username === 'TRADER_TAMIM_3' || username === '@TRADER_TAMIM_3';
+
+    if (!userDoc.exists) {
+      await userRef.set({
+        telegramId: String(id),
+        username: username || '',
+        firstName: first_name || '',
+        balance: 0,
+        isAdmin: isAdmin,
+        createdAt: FieldValue.serverTimestamp()
+      });
+    } else {
+      // Update username if it changed
+      await userRef.update({
+        username: username || '',
+        firstName: first_name || '',
+        isAdmin: isAdmin // Keep it updated in case they change username to/from admin (for dev purposes)
+      });
+    }
+    const updatedDoc = await userRef.get();
+    res.json(updatedDoc.data());
+  } catch (error) {
+    console.error("User sync error:", error);
+    res.status(500).json({ error: "Failed to sync user" });
+  }
+});
+
+// Admin endpoints
+app.post("/api/admin/settings", async (req, res) => {
+  const { telegramId, settings } = req.body;
+  if (!telegramId) return res.status(400).json({ error: "ID required" });
+
+  try {
+    const userDoc = await db.collection('users').doc(String(telegramId)).get();
+    if (!userDoc.exists || !userDoc.data()?.isAdmin) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    await db.collection('settings').doc('global').set(settings, { merge: true });
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Admin settings error:", error);
+    res.status(500).json({ error: "Failed to update settings" });
+  }
+});
+
+app.get("/api/admin/config", async (req, res) => {
+  try {
+    const settingsDoc = await db.collection('settings').doc('global').get();
+    res.json(settingsDoc.data() || {});
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch config" });
+  }
 });
 
 // Create Payment Intent
@@ -38,8 +121,8 @@ app.post("/api/payment/create", async (req, res) => {
     // Success URL now includes a placeholder for transaction_id which the gateway should fill
     // If the gateway doesn't fill it automatically, we might need to handle it differently.
     // Based on the PHP snippet, verification is done by transaction_id.
-    const successUrl = `${req.protocol}://${req.get("host")}/api/payment/success?amount=${amount}&trxid={transaction_id}`;
-    const failUrl = `${req.protocol}://${req.get("host")}/api/payment/fail`;
+    const successUrl = `${req.protocol}://${req.get("host")}/api/payment/success?amount=${amount}&trxid={transaction_id}&userId=${req.body.userId}`;
+    const failUrl = `${req.protocol}://${req.get("host")}/api/payment/fail?userId=${req.body.userId}`;
 
     const paymentUrl = `${gatewayUrl}/pay/${brandKey}?amount=${amount}&success_url=${encodeURIComponent(successUrl)}&fail_url=${encodeURIComponent(failUrl)}`;
 
@@ -54,15 +137,22 @@ app.post("/api/payment/create", async (req, res) => {
 app.get("/api/payment/success", async (req, res) => {
   const amount = Number(req.query.amount);
   const transactionId = req.query.trxid as string;
+  const userId = req.query.userId as string;
+
+  if (!userId) return res.redirect("/?status=fail&reason=missing_user");
+
+  const creditUser = async (amt: number) => {
+    if (isNaN(amt) || amt <= 0) return;
+    const userRef = db.collection('users').doc(userId);
+    await userRef.update({
+      balance: FieldValue.increment(amt)
+    });
+    console.log(`Credited ${amt} to user ${userId}`);
+  };
 
   if (!transactionId || transactionId === "{transaction_id}") {
     console.log("No transaction ID provided or placeholder remains");
-    // Some gateways might not replace the placeholder if not supported via GET params
-    // In a real SMM panel, the gateway usually has a post-payment redirect with params.
-    // We'll proceed with amount for now but log a warning.
-    if (!isNaN(amount) && amount > 0) {
-        userBalance += amount;
-    }
+    await creditUser(amount);
     return res.redirect("/?status=success&tab=deposit");
   }
 
@@ -85,12 +175,8 @@ app.get("/api/payment/success", async (req, res) => {
     });
 
     // Check verification status
-    // Assuming the response contains success or status: 1
     if (response.data && (response.data.status === 1 || response.data.status === 'success')) {
-      if (!isNaN(amount) && amount > 0) {
-        userBalance += amount;
-        console.log(`Verified payment. Updated balance: ${userBalance}`);
-      }
+      await creditUser(amount);
       res.redirect("/?status=success&tab=deposit");
     } else {
       console.error("Payment verification failed:", response.data);
@@ -98,8 +184,6 @@ app.get("/api/payment/success", async (req, res) => {
     }
   } catch (error) {
     console.error("Verification error:", error);
-    // If verification service is down but we got amount, we might still want to credit? 
-    // Usually safer to fail.
     res.redirect("/?status=fail&tab=deposit&reason=error");
   }
 });
