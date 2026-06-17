@@ -114,6 +114,7 @@ export default function App() {
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [dbCategories, setDbCategories] = useState<Category[]>([]);
   const [dbServices, setDbServices] = useState<any[]>([]);
+  const [dbSliderImages, setDbSliderImages] = useState<any[]>([]);
   const [dbSettings, setDbSettings] = useState<any>(null);
 
   useEffect(() => {
@@ -131,6 +132,13 @@ export default function App() {
       setDbServices(svcs.length > 0 ? svcs : INITIAL_SERVICES);
     });
 
+    // Load Slider Images
+    const qSlider = query(collection(db, 'slider_images'));
+    const unsubSlider = onSnapshot(qSlider, (snap) => {
+      const imgs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+      setDbSliderImages(imgs);
+    });
+
     // Load Settings
     const unsubSettings = onSnapshot(doc(db, 'settings', 'global'), (snap) => {
       if (snap.exists()) setDbSettings(snap.data());
@@ -139,6 +147,7 @@ export default function App() {
     return () => {
       unsubCat();
       unsubSvc();
+      unsubSlider();
       unsubSettings();
     };
   }, []);
@@ -763,6 +772,28 @@ export default function App() {
                 </div>
               </div>
 
+              {isAdmin && (
+                <div className="mx-4 mt-4">
+                    <button 
+                        onClick={() => setShowAdminPanel(true)}
+                        className="w-full bg-white border-2 border-orange-100 p-4 rounded-[28px] flex items-center justify-between shadow-lg shadow-orange-500/5 group active:scale-95 transition-all"
+                    >
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-orange-50 rounded-[20px] flex items-center justify-center text-orange-600">
+                                <ShieldCheck className="w-6 h-6 stroke-[2.5px]" />
+                            </div>
+                            <div className="text-left">
+                                <h4 className="text-sm font-black text-gray-900">Admin Control Panel</h4>
+                                <p className="text-[10px] font-bold text-gray-400">Manage products, users and settings</p>
+                            </div>
+                        </div>
+                        <div className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                            <ChevronRight className="w-5 h-5" />
+                        </div>
+                    </button>
+                </div>
+              )}
+
               {/* Account Detailed Information */}
               <div className="mx-4 space-y-3">
                 <div className="flex items-center gap-2 px-1">
@@ -974,7 +1005,7 @@ export default function App() {
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: -20 }}
                                     transition={{ duration: 0.5 }}
-                                    src={dbSettings?.sliderImages?.[currentBannerIndex] || bannerImages[currentBannerIndex]} 
+                                    src={dbSliderImages.length > 0 ? dbSliderImages[currentBannerIndex % dbSliderImages.length].url : bannerImages[currentBannerIndex]} 
                                     alt="Festive Banner" 
                                     className="w-full h-full object-cover"
                                     referrerPolicy="no-referrer"

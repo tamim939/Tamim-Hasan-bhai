@@ -184,6 +184,44 @@ export default function AdminPanel({ onClose, telegramId }: AdminPanelProps) {
               ))}
             </div>
           )}
+
+          {activeTab === 'slider' && (
+            <div className="space-y-4">
+              <button 
+                onClick={async () => {
+                  const url = prompt('Image URL:');
+                  if (!url) return;
+                  await addDoc(collection(db, 'slider_images'), { url, order: sliderImages.length });
+                  fetchData();
+                }} 
+                className="w-full bg-blue-50 text-blue-600 font-black py-3 rounded-[16px] flex items-center justify-center gap-2"
+              >
+                <Plus className="w-5 h-5" /> Add New Slider Image
+              </button>
+              <div className="grid grid-cols-1 gap-4">
+                {sliderImages.map(img => (
+                  <div key={img.id} className="bg-gray-50 p-4 rounded-[24px] border-2 border-transparent hover:border-blue-100">
+                    <div className="aspect-video w-full rounded-[16px] overflow-hidden mb-3 bg-gray-200">
+                      <img src={img.url} alt="Slider" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <input 
+                        className="flex-1 bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold truncate"
+                        value={img.url}
+                        readOnly
+                      />
+                      <button 
+                        onClick={async () => { await deleteDoc(doc(db, 'slider_images', img.id)); fetchData(); }}
+                        className="p-2 bg-red-50 text-red-500 rounded-xl"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
