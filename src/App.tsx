@@ -91,7 +91,7 @@ const PlatformIcons: Record<string, LucideIcon> = {
   tiktok: Video,
 };
 
-type AppTab = 'deposit' | 'history' | 'profile' | 'new-order' | 'referral';
+type AppTab = 'deposit' | 'history' | 'profile' | 'new-order';
 
 export default function App() {
   const [user, setUser] = useState<TelegramUser | null>(null);
@@ -1364,13 +1364,12 @@ export default function App() {
       </main>
 
       {/* Floating Bottom Navigation - Match Screenshot */}
-      <nav className="fixed bottom-6 left-5 right-5 h-20 bg-white/95 backdrop-blur-xl border border-white/50 rounded-full shadow-[0_20px_40px_rgba(0,0,0,0.1)] flex items-center justify-between z-50 px-4 overflow-visible">
+      <nav className="fixed bottom-6 left-5 right-5 h-20 bg-white/95 backdrop-blur-xl border border-white/50 rounded-full shadow-[0_20px_40px_rgba(0,0,0,0.1)] flex items-center justify-between z-50 px-2 overflow-visible">
         <NavIconButton active={activeTab === 'new-order'} onClick={() => setActiveTab('new-order')} icon={ShoppingBag} label="Order" />
         <NavIconButton active={activeTab === 'history'} onClick={() => setActiveTab('history')} icon={History} label="History" />
         
-        <NavIconButton active={activeTab === 'deposit'} onClick={() => setActiveTab('deposit')} icon={HandCoins} label="Deposit" isCenter />
+        <NavIconButton active={activeTab === 'deposit'} onClick={() => setActiveTab('deposit')} icon={HandCoins} label="Deposit" />
 
-        <NavIconButton active={activeTab === 'referral'} onClick={() => setActiveTab('referral')} icon={Gift} label="Refer" />
         <NavIconButton active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} icon={User} label="Profile" />
       </nav>
     </div>
@@ -1386,20 +1385,20 @@ function StatBox({ label, value, full }: { label: string, value: string, full?: 
     )
 }
 
-function NavIconButton({ active, onClick, icon: Icon, label, isCenter }: { active: boolean, onClick: () => void, icon: LucideIcon, label: string, isCenter?: boolean }) {
+function NavIconButton({ active, onClick, icon: Icon, label }: { active: boolean, onClick: () => void, icon: LucideIcon, label: string }) {
   return (
     <button 
       onClick={onClick}
       className={`flex-1 flex flex-col items-center gap-1.5 transition-all relative ${active ? 'text-blue-600' : 'text-gray-400 hover:text-gray-500'}`}
     >
-      <div className={`flex flex-col items-center justify-center ${isCenter && active ? 'scale-110 -translate-y-1' : ''} transition-all duration-300`}>
-        <Icon className={`w-5.5 h-5.5 ${active ? 'stroke-[2.5px]' : 'stroke-[2px]'}`} />
-        <span className="text-[8px] font-black uppercase tracking-tighter mt-0.5">{label}</span>
+      <div className={`flex flex-col items-center justify-center transition-all duration-300`}>
+        <Icon className={`w-6 h-6 ${active ? 'stroke-[2.5px]' : 'stroke-[2px]'}`} />
+        <span className="text-[10px] font-black uppercase tracking-tighter mt-0.5">{label}</span>
       </div>
       {active && (
         <motion.div 
           layoutId="nav-dot" 
-          className="absolute -bottom-1 w-1 h-1 bg-blue-600 rounded-full" 
+          className="absolute -bottom-2 w-1 h-1 bg-blue-600 rounded-full" 
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         />
       )}

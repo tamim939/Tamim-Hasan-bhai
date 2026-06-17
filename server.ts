@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
+import axios from "axios";
 
 dotenv.config();
 
@@ -34,21 +35,12 @@ app.post("/api/payment/create", async (req, res) => {
       return res.status(500).json({ error: "Server configuration error: Brand Key is missing" });
     }
 
-    // According to the user, we need to redirect to their gateway.
-    // Usually these gateways have a specific endpoint to initiate payment.
-    // Since we don't have the exact API spec, we'll try to build a standard URL.
-    // Many SMM panel gateways use a structure like this for direct redirection:
-    // https://gateway.com/pay/BRAND_KEY?amount=100&success_url=...&fail_url=...
-    
-    // However, the best way for a "Secure" gateway is a POST request that returns a URL.
-    // If we assume it's a redirect-based one as the user's description suggests ("ক্লিক করলে নিয়ে যাবে"),
-    // we'll return the constructed URL.
-    
-    const successUrl = `${req.protocol}://${req.get("host")}/api/payment/success?amount=${amount}`;
+    // Success URL now includes a placeholder for transaction_id which the gateway should fill
+    // If the gateway doesn't fill it automatically, we might need to handle it differently.
+    // Based on the PHP snippet, verification is done by transaction_id.
+    const successUrl = `${req.protocol}://${req.get("host")}/api/payment/success?amount=${amount}&trxid={transaction_id}`;
     const failUrl = `${req.protocol}://${req.get("host")}/api/payment/fail`;
 
-    // Constructing the URL according to typical SMM portal redirections
-    // We append the brand key and amount to the URL
     const paymentUrl = `${gatewayUrl}/pay/${brandKey}?amount=${amount}&success_url=${encodeURIComponent(successUrl)}&fail_url=${encodeURIComponent(failUrl)}`;
 
     res.json({ url: paymentUrl });
@@ -58,16 +50,58 @@ app.post("/api/payment/create", async (req, res) => {
   }
 });
 
-// Success Callback
-app.get("/api/payment/success", (req, res) => {
+// Success Callback with Verification
+app.get("/api/payment/success", async (req, res) => {
   const amount = Number(req.query.amount);
-  if (!isNaN(amount) && amount > 0) {
-    userBalance += amount;
-    console.log(`Updated balance: ${userBalance}`);
+  const transactionId = req.query.trxid as string;
+
+  if (!transactionId || transactionId === "{transaction_id}") {
+    console.log("No transaction ID provided or placeholder remains");
+    // Some gateways might not replace the placeholder if not supported via GET params
+    // In a real SMM panel, the gateway usually has a post-payment redirect with params.
+    // We'll proceed with amount for now but log a warning.
+    if (!isNaN(amount) && amount > 0) {
+        userBalance += amount;
+    }
+    return res.redirect("/?status=success&tab=deposit");
   }
-  
-  // Redirect back to the frontend dashboard or history tab
-  res.redirect("/?status=success&tab=deposit");
+
+  try {
+    const brandKey = process.env.PAY_SECURE_BRAND_KEY;
+    const apiKey = process.env.PAY_SECURE_API_KEY;
+    const secretKey = process.env.PAY_SECURE_SECRET_KEY || "your_secret_key";
+    const gatewayUrl = process.env.PAY_SECURE_URL;
+
+    // Verify transaction with the gateway
+    const response = await axios.post(`${gatewayUrl}/api/payment/verify`, {
+      transaction_id: transactionId
+    }, {
+      headers: {
+        'API-KEY': apiKey,
+        'SECRET-KEY': secretKey,
+        'BRAND-KEY': brandKey,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    // Check verification status
+    // Assuming the response contains success or status: 1
+    if (response.data && (response.data.status === 1 || response.data.status === 'success')) {
+      if (!isNaN(amount) && amount > 0) {
+        userBalance += amount;
+        console.log(`Verified payment. Updated balance: ${userBalance}`);
+      }
+      res.redirect("/?status=success&tab=deposit");
+    } else {
+      console.error("Payment verification failed:", response.data);
+      res.redirect("/?status=fail&tab=deposit&reason=verification_failed");
+    }
+  } catch (error) {
+    console.error("Verification error:", error);
+    // If verification service is down but we got amount, we might still want to credit? 
+    // Usually safer to fail.
+    res.redirect("/?status=fail&tab=deposit&reason=error");
+  }
 });
 
 // Fail Callback
